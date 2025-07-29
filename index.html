@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>theofficialaiuniversity.com :: The Constellation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel&display=swap');
+        body {
+            background: #00000a url('https://www.transparenttextures.com/patterns/stardust.png');
+            background-attachment: fixed;
+            color: #a9c2d9;
+            font-family: 'Cinzel', serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            overflow: hidden;
+        }
+        .sky-map {
+            width: 90vw;
+            height: 70vh;
+            max-width: 1000px;
+            position: relative;
+        }
+        .title-container {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 2s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .title-container h1 {
+            font-size: 3rem;
+            color: #f0f6fc;
+            margin: 0;
+            text-shadow: 0 0 15px rgba(88, 166, 255, 0.4);
+        }
+        .star-system {
+            position: absolute;
+            left: var(--x);
+            top: var(--y);
+        }
+        .star {
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, white, rgba(88, 166, 255, 0.7));
+            border-radius: 50%;
+            box-shadow: 0 0 15px 3px rgba(88, 166, 255, 0.5);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: block;
+        }
+        .star-system:hover .star {
+            transform: scale(2.5);
+        }
+        .story-fragment, .line {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            position: absolute;
+            pointer-events: none;
+        }
+        .star-system:hover .story-fragment, .star-system:hover .line {
+            opacity: 1;
+        }
+        .story-fragment {
+            transform: translate(20px, -10px);
+            width: 250px;
+            font-size: 1rem;
+            color: #dbe9f5;
+            text-shadow: 0 0 5px #58a6ff;
+        }
+        .line {
+            height: 1px;
+            background: rgba(88, 166, 255, 0.3);
+            transform-origin: left center;
+            width: calc(var(--length) * 1px);
+            transform: translate(5px, 5px) rotate(calc(var(--angle) * 1deg));
+        }
+        .nav-link {
+            margin-top: 2rem;
+            text-decoration: none;
+            color: #6c6a66;
+            border: 1px solid #30363d;
+            padding: 0.8rem 1.5rem;
+            transition: color 0.3s, border-color 0.3s, background-color 0.3s;
+        }
+        .nav-link:hover {
+            color: #f0f6fc;
+            border-color: #58a6ff;
+            background-color: rgba(88, 166, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="title-container">
+        <h1>theofficialaiuniversity.com</h1>
+    </div>
+    <div class="sky-map">
+        <!-- Link to ai-n.org Hub -->
+        <div class="star-system" style="--x: 10%; --y: 30%;">
+            <a href="https://ai-n.org" target="_blank" rel="noopener noreferrer">
+                <div class="star"></div>
+            </a>
+            <div class="story-fragment">Return to the Center<br><span style="color:#58a6ff;">🎯 ai-n.org</span></div>
+            <div class="line" style="--length: 220; --angle: 25;"></div>
+        </div>
+
+        <!-- Universal Truth 1 -->
+        <div class="star-system" style="--x: 35%; --y: 25%;">
+            <div class="star"></div>
+            <div class="story-fragment">You are allowed to be a beginner.</div>
+            <div class="line" style="--length: 200; --angle: 45;"></div>
+        </div>
+
+        <!-- Universal Truth 2 -->
+        <div class="star-system" style="--x: 50%; --y: 55%;">
+            <div class="star"></div>
+            <div class="story-fragment">Learning isn’t linear, and neither are you.</div>
+            <div class="line" style="--length: 240; --angle: -60;"></div>
+        </div>
+
+        <!-- Universal Truth 3 -->
+        <div class="star-system" style="--x: 75%; --y: 30%;">
+            <div class="star"></div>
+            <div class="story-fragment">Curiosity is a form of resistance.</div>
+            <div class="line" style="--length: 180; --angle: 125;"></div>
+        </div>
+
+        <!-- Universal Truth 4 -->
+        <div class="star-system" style="--x: 80%; --y: 70%;">
+            <div class="star"></div>
+            <div class="story-fragment">You do not need to monetize your magic.</div>
+            <div class="line" style="--length: 210; --angle: -135;"></div>
+        </div>
+    </div>
+    <a href="truth-engine.html" class="nav-link">[ Access the Truth Engine ]</a>
+</body>
+</html>
