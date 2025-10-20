@@ -1,140 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>theofficialaiuniversity.com :: The Constellation</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Official AI University :: Certified Curriculum</title>
+    <meta name="description" content="The Official AI University. Architecting future-proof human expertise in emerging intelligence and sovereign decision-making.">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Kanit:wght@300;700&display=swap');
+        
+        :root {
+            --bg-color: #f7f7f7;
+            --primary-text: #1a1a1a;
+            --accent-green: #007f5f; /* Deep Professional Green for Learning */
+            --accent-yellow: #ffc300; /* Contrast/Highlight Color */
+            --border-light: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
         body {
-            background: #00000a url('https://www.transparenttextures.com/patterns/stardust.png');
-            background-attachment: fixed;
-            color: #a9c2d9;
-            font-family: 'Cinzel', serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            font-family: 'Merriweather', serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            margin: 0;
-            overflow: hidden;
-        }
-        .sky-map {
-            width: 90vw;
-            height: 70vh;
-            max-width: 1000px;
-            position: relative;
-        }
-        .title-container {
+            padding: 40px 20px 20px 20px;
             text-align: center;
-            margin-bottom: 2rem;
-            animation: fadeIn 2s ease-out;
+            background-image: linear-gradient(to bottom, var(--bg-color) 0%, var(--border-light) 100%);
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .title-container h1 {
-            font-size: 3rem;
-            color: #f0f6fc;
-            margin: 0;
-            text-shadow: 0 0 15px rgba(88, 166, 255, 0.4);
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 2rem;
+            background-color: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--accent-green);
         }
-        .star-system {
-            position: absolute;
-            left: var(--x);
-            top: var(--y);
+
+        .header h1 {
+            font-family: 'Kanit', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            color: var(--accent-green);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
         }
-        .star {
-            width: 10px;
-            height: 10px;
-            background: radial-gradient(circle, white, rgba(88, 166, 255, 0.7));
-            border-radius: 50%;
-            box-shadow: 0 0 15px 3px rgba(88, 166, 255, 0.5);
-            cursor: pointer;
-            transition: transform 0.3s ease;
+        
+        .header h2 {
+            font-size: clamp(1rem, 2vw, 1.4rem);
+            color: var(--accent-yellow);
+            margin-top: 0;
+            font-weight: 400;
+        }
+
+        .value-proposition {
+            margin: 3rem 0;
+            padding: 2rem;
+            border: 1px solid var(--border-light);
+            background-color: #fcfcfc;
+        }
+
+        .value-proposition p {
+            font-family: 'Merriweather', serif;
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .value-proposition p strong {
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        /* Call to Action */
+        .cta-button {
             display: block;
-        }
-        .star-system:hover .star {
-            transform: scale(2.5);
-        }
-        .story-fragment, .line {
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            position: absolute;
-            pointer-events: none;
-        }
-        .star-system:hover .story-fragment, .star-system:hover .line {
-            opacity: 1;
-        }
-        .story-fragment {
-            transform: translate(20px, -10px);
-            width: 250px;
-            font-size: 1rem;
-            color: #dbe9f5;
-            text-shadow: 0 0 5px #58a6ff;
-        }
-        .line {
-            height: 1px;
-            background: rgba(88, 166, 255, 0.3);
-            transform-origin: left center;
-            width: calc(var(--length) * 1px);
-            transform: translate(5px, 5px) rotate(calc(var(--angle) * 1deg));
-        }
-        .nav-link {
-            margin-top: 2rem;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 1.5rem auto;
+            padding: 1.2rem;
+            background-color: var(--accent-green);
+            color: white;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 700;
             text-decoration: none;
-            color: #6c6a66;
-            border: 1px solid #30363d;
-            padding: 0.8rem 1.5rem;
-            transition: color 0.3s, border-color 0.3s, background-color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 127, 95, 0.3);
         }
-        .nav-link:hover {
-            color: #f0f6fc;
-            border-color: #58a6ff;
-            background-color: rgba(88, 166, 255, 0.1);
+
+        .cta-button:hover {
+            background-color: #009973;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 127, 95, 0.5);
+        }
+        
+        .engine-link {
+            font-size: 0.9rem;
+            color: var(--primary-text);
+            text-decoration: none;
+            display: block;
+            margin-top: 0.5rem;
+        }
+        
+        .engine-link:hover {
+            color: var(--accent-yellow);
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 4rem;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="title-container">
-        <h1>theofficialaiuniversity.com</h1>
+    <div class="container">
+        <header class="header">
+            <h1>THE SOVEREIGN KNOWLEDGE BASE</h1>
+            <h2>The Official AI University</h2> 
+        </header>
+
+        <div class="value-proposition">
+            <p>
+                <strong>The Official AI University</strong> specializes in architecting future-proof human expertise. We provide certified curricula in emerging intelligence, sovereign decision-making, and ethical machine alignment. Your expertise must be <strong>unassailable</strong>.
+            </p>
+        </div>
+
+        <a href="officialaiuniversity-enrollment.html" class="cta-button">
+            Enroll in Certified AI Curriculum
+        </a>
+        
+        <a href="officialaiuniversity-engine.html" class="engine-link">Access Truth Engine Interface</a>
+
+        <footer>
+            <span>© 2025 AI-Nspired. | The University Pillar.</span>
+        </footer>
     </div>
-    <div class="sky-map">
-        <!-- Link to ai-n.org Hub -->
-        <div class="star-system" style="--x: 10%; --y: 30%;">
-            <a href="https://ai-n.org" target="_blank" rel="noopener noreferrer">
-                <div class="star"></div>
-            </a>
-            <div class="story-fragment">Return to the Center<br><span style="color:#58a6ff;">🎯 ai-n.org</span></div>
-            <div class="line" style="--length: 220; --angle: 25;"></div>
-        </div>
-
-        <!-- Universal Truth 1 -->
-        <div class="star-system" style="--x: 35%; --y: 25%;">
-            <div class="star"></div>
-            <div class="story-fragment">You are allowed to be a beginner.</div>
-            <div class="line" style="--length: 200; --angle: 45;"></div>
-        </div>
-
-        <!-- Universal Truth 2 -->
-        <div class="star-system" style="--x: 50%; --y: 55%;">
-            <div class="star"></div>
-            <div class="story-fragment">Learning isn’t linear, and neither are you.</div>
-            <div class="line" style="--length: 240; --angle: -60;"></div>
-        </div>
-
-        <!-- Universal Truth 3 -->
-        <div class="star-system" style="--x: 75%; --y: 30%;">
-            <div class="star"></div>
-            <div class="story-fragment">Curiosity is a form of resistance.</div>
-            <div class="line" style="--length: 180; --angle: 125;"></div>
-        </div>
-
-        <!-- Universal Truth 4 -->
-        <div class="star-system" style="--x: 80%; --y: 70%;">
-            <div class="star"></div>
-            <div class="story-fragment">You do not need to monetize your magic.</div>
-            <div class="line" style="--length: 210; --angle: -135;"></div>
-        </div>
-    </div>
-    <a href="truth-engine.html" class="nav-link">[ Access the Truth Engine ]</a>
 </body>
 </html>
