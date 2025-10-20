@@ -4,215 +4,76 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Official AI University :: Foundational Architecture</title>
-    <meta name="description" content="The Official AI University. Providing the non-negotiable foundations to architect future-proof human expertise.">
+    <meta name="description" content="The Official AI University. Providing the non-negotiable foundations required to architect future-proof human expertise.">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom Variables: SILVER AGE (SLATE/SILVER/MARBLE) THEME */
-        :root {
-            --bg-color: #ffffff; 
-            --primary-text: #1a1a1a;
-            --accent-slate: #1a2a3a; /* Deep, Authoritative Slate/Navy */
-            --accent-silver: #f0f0f0; 
-            --border-light: #e0e0e0;
-            --glow-color: rgba(240, 240, 240, 0.8);
-            --block-shade: #f8f8f8;
-            --cta-button-color: #1a2a3a;
-            --cta-light-accent: #c0c0c0; /* Light accent for the new button */
+        /* Custom Variables: SILVER AGE THEME (Minimized) */
+        :root{--b:#fff;--p:#1a1a1a;--s:#1a2a3a;--sv:#f0f0f0;--bl:#e0e0e0;--g:rgba(240,240,240,.8);--bs:#f8f8f8;--cb:#1a2a3a;--cl:#c0c0c0}
+        *{box-sizing:border-box;transition:all .3s ease}
+        body{margin:0;background-color:var(--b);color:var(--p);font-family:'Merriweather',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px 20px;text-align:center;background-image:url('https://www.transparenttextures.com/patterns/white-marble.png'), linear-gradient(to bottom, var(--b) 0%, var(--bl) 100%)}
+        .c{max-width:800px;width:100%;padding:3rem;background-color:var(--b);box-shadow:0 15px 40px rgba(0,0,0,.15),0 0 25px var(--g);border-top:5px solid var(--s)}
+        .h{background-color:var(--s);padding:2rem .5rem;margin-bottom:2rem;box-shadow:0 5px 15px rgba(0,0,0,.2)}
+        .h h1{font-family:'Cinzel',serif;font-size:clamp(1.5rem,3vw,2.5rem);color:white;margin:.2rem 0;font-weight:700;text-transform:uppercase;letter-spacing:.15em;line-height:1.2;text-shadow:0 0 15px var(--g), 0 0 25px rgba(240,240,240,.5)}
+        .v{display:block}
+        .fl{
+            display:flex; 
+            flex-direction:column; 
+            justify-content:center; 
+            min-height: 120px; 
+            text-decoration:none;color:var(--p);padding:1.5rem 2rem;margin-bottom:1.5rem;text-align:left;font-family:'Merriweather',serif;font-size:clamp(1.1rem,2.5vw,1.3rem);line-height:1.8;background-color:var(--bs);border-left:5px solid var(--s);box-shadow:0 3px 10px rgba(0,0,0,.05)
         }
-
-        * {
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-
-        body {
-            margin: 0;
-            background-color: var(--bg-color);
-            color: var(--primary-text);
-            font-family: 'Merriweather', serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px 20px 20px;
-            text-align: center;
-            background-image: url('https://www.transparenttextures.com/patterns/white-marble.png'), linear-gradient(to bottom, var(--bg-color) 0%, var(--border-light) 100%);
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            padding: 3rem;
-            background-color: #ffffff;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 0 25px var(--glow-color);
-            border-top: 5px solid var(--accent-slate);
-        }
-
-        .header {
-            background-color: var(--accent-slate);
-            padding: 2rem 0.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .header h1 {
-            font-family: 'Cinzel', serif; 
-            font-size: clamp(1.5rem, 3vw, 2.5rem);
-            color: white; 
-            margin: 0.2rem 0;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em; 
-            line-height: 1.2;
-            text-shadow: 0 0 15px var(--glow-color), 0 0 25px rgba(240, 240, 240, 0.5);
-        }
-        
-        .vertical-name {
-            display: block; 
-        }
-
-        /* Styling for the new clickable funnel links */
-        .funnel-link {
-            display: block;
-            text-decoration: none;
-            color: var(--primary-text);
-            padding: 1.5rem 2rem;
-            margin-bottom: 1.5rem;
-            text-align: left;
-            font-family: 'Merriweather', serif;
-            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
-            line-height: 1.8;
-            background-color: var(--block-shade);
-            border-left: 5px solid var(--accent-slate);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        .funnel-link:hover {
-            background-color: #f0f0f0;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .funnel-link strong {
-            color: var(--accent-slate); 
-            font-weight: 700;
-            display: block;
-            font-family: 'Cinzel', serif;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: clamp(1.2rem, 3vw, 1.5rem);
-        }
-
-        /* CTA Buttons */
-        .cta-button {
-            display: block;
-            width: 100%;
-            max-width: 400px;
-            margin: 1rem auto 0.5rem auto; /* Tighter margins between buttons */
-            padding: 1.2rem;
-            font-family: 'Cinzel', serif; 
-            font-weight: 700;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border: none;
-        }
-
-        /* Primary CTA (Forge Foundation) */
-        .cta-primary {
-            background-color: var(--cta-button-color); 
-            color: white;
-            box-shadow: 0 4px 15px rgba(26, 42, 58, 0.4);
-        }
-        .cta-primary:hover {
-            background-color: #2b3c4f;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(26, 42, 58, 0.6);
-        }
-
-        /* Secondary CTA (Donate/Portal) */
-        .cta-secondary {
-            background-color: var(--cta-light-accent); 
-            color: var(--accent-slate); /* Dark text on light button */
-            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.5);
-        }
-        .cta-secondary:hover {
-            background-color: #d8d8d8;
-            box-shadow: 0 6px 20px rgba(192, 192, 192, 0.7);
-        }
-        
-        .engine-link {
-            font-family: 'Merriweather', serif;
-            font-size: 0.9rem;
-            color: var(--primary-text);
-            text-decoration: none;
-            display: block;
-            margin-top: 0.5rem;
-        }
-        
-        .engine-link:hover {
-            color: var(--accent-slate);
-            text-decoration: underline;
-        }
-
-        footer {
-            margin-top: 4rem;
-            font-size: 0.8rem;
-            color: #888;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 20px 10px;
-            }
-        }
+        .fl:hover{background-color:#f0f0f0;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,.1)}
+        .fl strong{color:var(--s);font-weight:700;display:block;font-family:'Cinzel',serif;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:1px;font-size:clamp(1.2rem,3vw,1.5rem)}
+        .btn{display:block;width:100%;max-width:400px;margin:1rem auto .5rem;padding:1.2rem;font-family:'Cinzel',serif;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:2px;border:none}
+        .p{background-color:var(--cb);color:white;box-shadow:0 4px 15px rgba(26,42,58,.4)}
+        .p:hover{background-color:#2b3c4f;transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,42,58,.6)}
+        .s{background-color:var(--cl);color:var(--s);box-shadow:0 4px 15px rgba(192,192,192,.5)}
+        .s:hover{background-color:#d8d8d8;box-shadow:0 6px 20px rgba(192,192,192,.7)}
+        footer{margin-top:4rem;font-size:.8rem;color:#888}
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1 class="tracking-widest">
-                <span class="vertical-name">THE</span>
-                <span class="vertical-name">OFFICIAL</span>
-                <span class="vertical-name">AI</span>
-                <span class="vertical-name">UNIVERSITY</span>
+    <div class="c">
+        <header class="h">
+            <h1>
+                <span class="v">THE OFFICIAL</span>
+                <span class="v">AI UNIVERSITY</span>
             </h1> 
         </header>
 
         <main>
-            <a href="theofficialaiuniversity-engine.html?q=foundational+architecture" class="funnel-link">
+            <a href="theofficialaiuniversity-engine.html?q=foundational+architecture" class="fl">
                 <strong>THE FOUNDATIONAL ARCHITECTURE</strong>
-                This institution does not offer certification. It offers genesis. We provide the non-negotiable foundations required to architect future-proof human expertise.
+                Foundational Architecture perpetuates human expertise.
             </a>
             
-            <a href="theofficialaiuniversity-engine.html?q=sovereign+decision-making" class="funnel-link">
+            <a href="theofficialaiuniversity-engine.html?q=sovereign+decision-making" class="fl">
                 <strong>SOVEREIGN DECISION-MAKING</strong>
-                Our focus is on the origin of sovereign decision-making and ethical machine alignment—the prequel to becoming the Architect.
+                Make the origin of the Architect your own.
             </a>
             
-            <a href="theofficialaiuniversity-engine.html?q=unassailable+expertise" class="funnel-link">
+            <a href="theofficialaiuniversity-engine.html?q=unassailable+expertise" class="fl">
                 <strong>UNASSAILABLE EXPERTISE</strong>
-                The ultimate goal: Your expertise must be unassailable. Click to view the core principles.
+                Mastery that flows through a full heart and clear mind never meets defeat.
             </a>
         </main>
 
         <section class="cta-actions">
-            <a href="YOUR_PAYPAL_DONATION_LINK" class="cta-button cta-secondary">
-                SUPPORT THE FOUNDATION (DONATE)
+            <a href="YOUR_PAYPAL_DONATION_LINK" class="btn s">
+                Support The Foundation (Donate)
             </a>
 
-            <a href="theofficialaiuniversity-engine.html" class="cta-button cta-secondary">
-                TRUTH ENGINE PORTAL
+            <a href="theofficialaiuniversity-engine.html" class="btn s">
+                Truth Engine Portal
             </a>
             
-            <a href="theofficialaiuniversity-enrollment.html" class="cta-button cta-primary">
-                FORGE YOUR FOUNDATION
+            <a href="theofficialaiuniversity-enrollment.html" class="btn p">
+                Forge Your Foundation
             </a>
         </section>
 
         <footer>
-            <span>&copy; 2025 AI-Nspired. | The University Pillar.</span>
+            <p>© 2025 ai-nspired. | the university pillar.</p>
         </footer>
     </div>
 </body>
