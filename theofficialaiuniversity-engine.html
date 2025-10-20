@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AiN Truth Engine Output</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --dark-bg: #1a2a3a;
+    --dark-text: #f0f0f0;
+    --dark-accent-slate: #0d1226;
+    --dark-accent-silver: #c0c0c0;
+    --dark-border: #2a3559;
+    --light-bg: #f5f5f5;
+    --light-text: #1a1a1a;
+    --light-accent-slate: #e0e0e0;
+    --light-accent-silver: #999999;
+    --glow-color: rgba(240,240,240,0.8);
+}
+
+* { box-sizing: border-box; transition: all 0.3s ease; }
+
+body {
+    margin: 0;
+    font-family: 'Merriweather', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 20px 20px;
+    text-align: center;
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+    background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png');
+    transition: all 0.3s ease;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    padding: 2.5rem 2rem;
+    background-color: var(--dark-accent-slate);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 25px var(--glow-color);
+    border-top: 5px solid var(--dark-accent-silver);
+    transition: all 0.3s ease;
+}
+
+.header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    color: var(--dark-text);
+    text-transform: uppercase;
+    text-shadow: 0 0 15px var(--glow-color), 0 0 25px rgba(240,240,240,0.5);
+}
+
+.header h2 {
+    font-family: 'Merriweather', serif;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    color: var(--dark-accent-silver);
+    margin-top: 1rem;
+    font-weight: 400;
+}
+
+.result-container {
+    margin-top: 2rem;
+    padding: 2rem;
+    text-align: left;
+    line-height: 1.8;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.result-container.glow {
+    animation: glowPulse 1s ease-in-out;
+}
+
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 10px var(--glow-color); }
+    50% { box-shadow: 0 0 25px var(--glow-color); }
+    100% { box-shadow: 0 0 10px var(--glow-color); }
+}
+
+button {
+    padding: 0.8rem 1.2rem;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 0.5rem;
+}
+
+#toggleTheme {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--dark-accent-silver);
+    color: var(--dark-accent-slate);
+    border: none;
+    border-radius: 5px;
+}
+
+.copy-btn, .tts-btn {
+    background: none;
+    border: 1px solid currentColor;
+    padding: 0.5rem 1rem;
+    margin-top: 1rem;
+}
+
+.light-mode {
+    background-color: var(--light-bg);
+    color: var(--light-text);
+}
+
+.light-mode .container {
+    background-color: var(--light-accent-slate);
+    border-top: 5px solid var(--light-accent-silver);
+}
+
+.light-mode .header h1 {
+    color: var(--light-text);
+    text-shadow: 0 0 10px var(--light-accent-silver);
+}
+
+.light-mode .header h2 {
+    color: var(--light-accent-silver);
+}
+
+.citation-block {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid currentColor;
+    font-size: 0.9rem;
+}
+.citation-block a { color: #4a8cff; text-decoration: none; }
+.citation-block a:hover { text-decoration: underline; }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <header class="header">
+        <h1>AIN TRUTH ENGINE OUTPUT</h1>
+        <h2>Data Stream Active • EITL Protocol</h2>
+    </header>
+
+    <div class="result-container" id="resultContainer">
+        <p>⚡ Waiting for query...</p>
+    </div>
+
+    <button class="copy-btn" id="copyBtn">Copy Analysis</button>
+    <button class="tts-btn" id="ttsBtn">TTS (Read Aloud)</button>
+</div>
+
+<button id="toggleTheme">Toggle Light/Dark</button>
+
+<script>
+const resultContainer = document.getElementById('resultContainer');
+const copyBtn = document.getElementById('copyBtn');
+const ttsBtn = document.getElementById('ttsBtn');
+const toggleThemeBtn = document.getElementById('toggleTheme');
+
+// Toggle light/dark
+toggleThemeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('light-mode');
+});
+
+// Copy analysis
+copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(resultContainer.innerText)
+    .then(() => { copyBtn.innerText = 'COPIED!'; setTimeout(() => copyBtn.innerText = 'Copy Analysis',2000); })
+    .catch(()=>{copyBtn.innerText='Error'; setTimeout(()=>copyBtn.innerText='Copy Analysis',2000)});
+});
+
+// TTS
+ttsBtn.addEventListener('click', () => {
+    if ('speechSynthesis' in window) {
+        if(window.speechSynthesis.speaking){window.speechSynthesis.cancel(); return;}
+        const utter = new SpeechSynthesisUtterance(resultContainer.innerText);
+        utter.rate = 1.1;
+        window.speechSynthesis.speak(utter);
+    } else { alert('TTS not supported.'); }
+});
+
+// Example: updating output dynamically
+function updateOutput(content, citations=[]) {
+    resultContainer.classList.remove('glow');
+    void resultContainer.offsetWidth; // Trigger reflow
+    resultContainer.classList.add('glow');
+    resultContainer.innerHTML = marked.parse(content);
+    if(citations.length){
+        let citationHTML = `<div class="citation-block"><h3>Sources</h3><ul>`;
+        citations.forEach(c => { citationHTML += `<li><a href="${c.url}" target="_blank">${c.title}</a></li>`; });
+        citationHTML += `</ul></div>`;
+        resultContainer.innerHTML += citationHTML;
+    }
+}
+
+// Example usage
+updateOutput("### Truth Engine Report\nAll systems operational. Patterns verified.", [
+    {title:"EITL Audit Reference", url:"https://ai-n.org"}
+]);
+</script>
+</body>
+</html>
