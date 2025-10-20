@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Official AI University :: Certified Curriculum</title>
-    <meta name="description" content="The Official AI University. Architecting future-proof human expertise in emerging intelligence and sovereign decision-making.">
+    <title>The Official AI University :: Foundational Architecture</title>
+    <meta name="description" content="The Official AI University. Providing the non-negotiable foundations to architect future-proof human expertise.">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Kanit:wght@300;700&display=swap');
-        
+        /* Custom Variables: SILVER AGE (SLATE/SILVER/MARBLE) THEME */
         :root {
-            --bg-color: #f7f7f7;
+            --bg-color: #ffffff; 
             --primary-text: #1a1a1a;
-            --accent-green: #007f5f; /* Deep Professional Green for Learning */
-            --accent-yellow: #ffc300; /* Contrast/Highlight Color */
+            --accent-slate: #1a2a3a; /* Deep, Authoritative Slate/Navy */
+            --accent-silver: #f0f0f0; 
             --border-light: #e0e0e0;
+            --glow-color: rgba(240, 240, 240, 0.8);
+            --block-shade: #f8f8f8;
+            --cta-button-color: #1a2a3a;
+            --cta-light-accent: #c0c0c0; /* Light accent for the new button */
         }
 
         * {
@@ -32,77 +36,114 @@
             align-items: center;
             padding: 40px 20px 20px 20px;
             text-align: center;
-            background-image: linear-gradient(to bottom, var(--bg-color) 0%, var(--border-light) 100%);
+            background-image: url('https://www.transparenttextures.com/patterns/white-marble.png'), linear-gradient(to bottom, var(--bg-color) 0%, var(--border-light) 100%);
         }
 
         .container {
             max-width: 800px;
             width: 100%;
-            padding: 2rem;
+            padding: 3rem;
             background-color: #ffffff;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border-top: 5px solid var(--accent-green);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 0 25px var(--glow-color);
+            border-top: 5px solid var(--accent-slate);
+        }
+
+        .header {
+            background-color: var(--accent-slate);
+            padding: 2rem 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .header h1 {
-            font-family: 'Kanit', sans-serif;
-            font-size: clamp(1.8rem, 5vw, 3rem);
-            color: var(--accent-green);
-            margin-bottom: 0.5rem;
+            font-family: 'Cinzel', serif; 
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            color: white; 
+            margin: 0.2rem 0;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.15em; 
+            line-height: 1.2;
+            text-shadow: 0 0 15px var(--glow-color), 0 0 25px rgba(240, 240, 240, 0.5);
         }
         
-        .header h2 {
-            font-size: clamp(1rem, 2vw, 1.4rem);
-            color: var(--accent-yellow);
-            margin-top: 0;
-            font-weight: 400;
+        .vertical-name {
+            display: block; 
         }
 
-        .value-proposition {
-            margin: 3rem 0;
-            padding: 2rem;
-            border: 1px solid var(--border-light);
-            background-color: #fcfcfc;
-        }
-
-        .value-proposition p {
+        /* Styling for the new clickable funnel links */
+        .funnel-link {
+            display: block;
+            text-decoration: none;
+            color: var(--primary-text);
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
             font-family: 'Merriweather', serif;
             font-size: clamp(1.1rem, 2.5vw, 1.3rem);
             line-height: 1.8;
-            color: #333;
+            background-color: var(--block-shade);
+            border-left: 5px solid var(--accent-slate);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
         }
         
-        .value-proposition p strong {
-            color: var(--accent-green);
+        .funnel-link:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .funnel-link strong {
+            color: var(--accent-slate); 
             font-weight: 700;
+            display: block;
+            font-family: 'Cinzel', serif;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
         }
 
-        /* Call to Action */
+        /* CTA Buttons */
         .cta-button {
             display: block;
             width: 100%;
             max-width: 400px;
-            margin: 0 auto 1.5rem auto;
+            margin: 1rem auto 0.5rem auto; /* Tighter margins between buttons */
             padding: 1.2rem;
-            background-color: var(--accent-green);
-            color: white;
-            font-family: 'Kanit', sans-serif;
+            font-family: 'Cinzel', serif; 
             font-weight: 700;
             text-decoration: none;
             text-transform: uppercase;
             letter-spacing: 2px;
             border: none;
-            box-shadow: 0 4px 15px rgba(0, 127, 95, 0.3);
         }
 
-        .cta-button:hover {
-            background-color: #009973;
+        /* Primary CTA (Forge Foundation) */
+        .cta-primary {
+            background-color: var(--cta-button-color); 
+            color: white;
+            box-shadow: 0 4px 15px rgba(26, 42, 58, 0.4);
+        }
+        .cta-primary:hover {
+            background-color: #2b3c4f;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 127, 95, 0.5);
+            box-shadow: 0 6px 20px rgba(26, 42, 58, 0.6);
+        }
+
+        /* Secondary CTA (Donate/Portal) */
+        .cta-secondary {
+            background-color: var(--cta-light-accent); 
+            color: var(--accent-slate); /* Dark text on light button */
+            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.5);
+        }
+        .cta-secondary:hover {
+            background-color: #d8d8d8;
+            box-shadow: 0 6px 20px rgba(192, 192, 192, 0.7);
         }
         
         .engine-link {
+            font-family: 'Merriweather', serif;
             font-size: 0.9rem;
             color: var(--primary-text);
             text-decoration: none;
@@ -111,7 +152,7 @@
         }
         
         .engine-link:hover {
-            color: var(--accent-yellow);
+            color: var(--accent-slate);
             text-decoration: underline;
         }
 
@@ -131,24 +172,47 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>THE SOVEREIGN KNOWLEDGE BASE</h1>
-            <h2>The Official AI University</h2> 
+            <h1 class="tracking-widest">
+                <span class="vertical-name">THE</span>
+                <span class="vertical-name">OFFICIAL</span>
+                <span class="vertical-name">AI</span>
+                <span class="vertical-name">UNIVERSITY</span>
+            </h1> 
         </header>
 
-        <div class="value-proposition">
-            <p>
-                <strong>The Official AI University</strong> specializes in architecting future-proof human expertise. We provide certified curricula in emerging intelligence, sovereign decision-making, and ethical machine alignment. Your expertise must be <strong>unassailable</strong>.
-            </p>
-        </div>
+        <main>
+            <a href="theofficialaiuniversity-engine.html?q=foundational+architecture" class="funnel-link">
+                <strong>THE FOUNDATIONAL ARCHITECTURE</strong>
+                This institution does not offer certification. It offers genesis. We provide the non-negotiable foundations required to architect future-proof human expertise.
+            </a>
+            
+            <a href="theofficialaiuniversity-engine.html?q=sovereign+decision-making" class="funnel-link">
+                <strong>SOVEREIGN DECISION-MAKING</strong>
+                Our focus is on the origin of sovereign decision-making and ethical machine alignment—the prequel to becoming the Architect.
+            </a>
+            
+            <a href="theofficialaiuniversity-engine.html?q=unassailable+expertise" class="funnel-link">
+                <strong>UNASSAILABLE EXPERTISE</strong>
+                The ultimate goal: Your expertise must be unassailable. Click to view the core principles.
+            </a>
+        </main>
 
-        <a href="officialaiuniversity-enrollment.html" class="cta-button">
-            Enroll in Certified AI Curriculum
-        </a>
-        
-        <a href="officialaiuniversity-engine.html" class="engine-link">Access Truth Engine Interface</a>
+        <section class="cta-actions">
+            <a href="YOUR_PAYPAL_DONATION_LINK" class="cta-button cta-secondary">
+                SUPPORT THE FOUNDATION (DONATE)
+            </a>
+
+            <a href="theofficialaiuniversity-engine.html" class="cta-button cta-secondary">
+                TRUTH ENGINE PORTAL
+            </a>
+            
+            <a href="theofficialaiuniversity-enrollment.html" class="cta-button cta-primary">
+                FORGE YOUR FOUNDATION
+            </a>
+        </section>
 
         <footer>
-            <span>© 2025 AI-Nspired. | The University Pillar.</span>
+            <span>&copy; 2025 AI-Nspired. | The University Pillar.</span>
         </footer>
     </div>
 </body>
