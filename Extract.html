@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Official AI University :: Component Builder v10 - Dual Mode</title>
+    <meta name="description" content="The Official AI University Component Builder. Architect future-proof components with dual-mode extraction and templating.">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --b: #f8fbff;
+            --p: #0f172a;
+            --s: #1e40af;
+            --sv: #e0e7ff;
+            --bl: #cbd5e1;
+            --g: rgba(224, 231, 255, 0.6);
+            --bs: #f1f5f9;
+            --cb: #1d4ed8;
+            --cl: #60a5fa;
+        }
+        * {
+            box-sizing: border-box;
+            transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            margin: 0;
+            background-color: var(--b);
+            color: var(--p);
+            font-family: 'Merriweather', serif;
+            padding: 40px 20px 20px;
+            background-image: 
+                url('https://www.transparenttextures.com/patterns/subtle-white-feathers.png'), 
+                linear-gradient(to bottom, var(--b) 0%, var(--sv) 100%);
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(30, 64, 175, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(96, 165, 250, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            color: var(--s);
+            text-align: center;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            text-shadow: 0 0 15px var(--g);
+        }
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            color: var(--s);
+            margin-top: 0;
+            border-bottom: 3px solid var(--s);
+            padding-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .panel {
+            background: rgba(248, 251, 255, 0.95);
+            border: 2px solid var(--s);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.1), 0 0 25px var(--g);
+            backdrop-filter: blur(10px);
+        }
+        textarea, select, input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--bl);
+            border-radius: 8px;
+            font-family: 'Merriweather', serif;
+            font-size: 1rem;
+            background: var(--bs);
+            color: var(--p);
+            margin-bottom: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        textarea:focus, select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--s);
+            box-shadow: 0 0 0 3px var(--g);
+        }
+        label {
+            font-weight: 700;
+            margin: 1rem 0 0.5rem;
+            display: block;
+            font-family: 'Cinzel', serif;
+            color: var(--s);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.9rem;
+        }
+        button {
+            background: linear-gradient(135deg, var(--s) 0%, var(--cb) 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            cursor: pointer;
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+        }
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        button:hover::before {
+            left: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+        }
+        button:disabled {
+            background: var(--bl);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        button.extract-btn, button#add-rule-button, button.save-rule-btn {
+            background: linear-gradient(135deg, var(--cl) 0%, var(--s) 100%);
+            box-shadow: 0 4px 15px rgba(96, 165, 250, 0.3);
+        }
+        button.extract-btn:hover, button#add-rule-button:hover, button.save-rule-btn:hover {
+            box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
+        }
+        button.remove-rule-btn, button.remove {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        button.remove-rule-btn:hover, button.remove:hover {
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+        #analysis-report .analysis-item, .rule-form {
+            background: var(--bs);
+            border: 1px solid var(--bl);
+            border-left: 4px solid var(--s);
+            padding: 1.25rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+        }
+        #analysis-report .analysis-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        #analysis-report .analysis-item-title {
+            font-weight: 700;
+            color: var(--s);
+            font-size: 1.1rem;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        #analysis-report .analysis-explanation {
+            font-style: italic;
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        #analysis-report .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        #analysis-report button.extract-btn, #analysis-report button.edit-btn, #analysis-report button.save-rule-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        .rule-form h3 {
+            margin-top: 0;
+            color: var(--cl);
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .rule-form textarea {
+            min-height: 60px;
+            height: 60px;
+            font-size: 0.85rem;
+        }
+        .rule-item {
+            background: var(--bs);
+            border: 1px solid var(--bl);
+            border-left: 4px solid var(--cl);
+            padding: 0.75rem 1.25rem;
+            margin: 0.75rem 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+        }
+        .rule-item-details { flex: 1; }
+        .rule-item-name {
+            font-weight: 700;
+            color: var(--cl);
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .rule-item-markers {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .rule-item button.remove-rule-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        .component-block {
+            background: var(--bs);
+            border: 1px solid var(--bl);
+            border-left: 4px solid var(--cl);
+            padding: 1rem;
+            margin: 0.75rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+        }
+        .component-block:hover {
+            background: var(--sv);
+            box-shadow: 0 6px 20px rgba(96, 165, 250, 0.15);
+            transform: translateX(4px);
+        }
+        .component-title {
+            font-weight: 700;
+            color: var(--cl);
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 1rem;
+        }
+        .component-description {
+            font-style: italic;
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+        .component-css, .component-html, .component-js, .component-head-extras, .component-body, .component-script {
+            background: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: var(--p);
+            max-height: 100px;
+            overflow-y: auto;
+            margin: 0.5rem 0;
+            white-space: pre-wrap;
+            border-left: 3px solid var(--s);
+        }
+        .component-html, .component-body { background: #f0f9ff; border-left-color: var(--cl); }
+        .component-js, .component-script { background: #eff6ff; border-left-color: var(--s); }
+        .component-css, .component-styles { background: #f0fdf4; border-left-color: #10b981; }
+        .component-head-extras { background: #fef2f2; border-left-color: #ef4444; }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .action-buttons button {
+            margin: 0;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            flex: 1;
+        }
+        .action-buttons button.remove {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .builder-area {
+            background: rgba(248, 251, 255, 0.6);
+            border: 2px dashed var(--bl);
+            border-radius: 12px;
+            min-height: 400px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            backdrop-filter: blur(5px);
+        }
+        .builder-item {
+            background: var(--bs);
+            border: 1px solid var(--bl);
+            border-left: 4px solid var(--cl);
+            padding: 1.25rem;
+            margin: 0.75rem 0;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+        }
+        .builder-item:hover {
+            box-shadow: 0 6px 20px rgba(96, 165, 250, 0.15);
+            transform: translateY(-2px);
+        }
+        .builder-item .move-btn, .builder-item .remove-btn, .builder-item .edit-btn {
+            background: var(--s);
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .builder-item .remove-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .builder-item .edit-btn:hover {
+            background: var(--cb);
+        }
+        .builder-item .move-btn.up, .builder-item .move-btn.down {
+            background: var(--s);
+        }
+        .builder-item .content { flex: 1; }
+        .builder-description {
+            font-style: italic;
+            color: #64748b;
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--s);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        .output-header h2 {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            font-size: 1.2rem;
+        }
+        .output-header button {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            margin: 0 0 0 1rem;
+        }
+        .output-code {
+            background: #0f172a;
+            color: #a5b4fc;
+            padding: 1.25rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border-left: 4px solid var(--s);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .status {
+            background: var(--g);
+            color: var(--s);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin: 0.75rem 0;
+            display: none;
+            border-left: 4px solid var(--s);
+        }
+        .status.show { display: block; }
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-left-color: #ef4444;
+        }
+        .edit-modal, .rule-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .edit-modal.show, .rule-modal.show { display: flex; }
+        .edit-modal-content, .rule-modal-content {
+            background: rgba(248, 251, 255, 0.95);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2), 0 0 30px var(--g);
+            border: 2px solid var(--s);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+        .edit-modal h3, .rule-modal h3 {
+            margin-top: 0;
+            color: var(--s);
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .edit-modal label, .rule-modal label {
+            font-weight: 700;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Cinzel', serif;
+            color: var(--s);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.9rem;
+        }
+        .edit-modal input[type="text"], .edit-modal textarea,
+        .rule-modal input[type="text"], .rule-modal textarea {
+            font-family: 'Merriweather', serif;
+            font-size: 1rem;
+        }
+        textarea#edit-component-description, textarea#rule-modal-description {
+            min-height: 80px;
+            height: 80px;
+            font-family: 'Merriweather', serif;
+            font-style: italic;
+        }
+        textarea#edit-component-content, textarea#rule-modal-content {
+            min-height: 300px;
+            flex-grow: 1;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .edit-modal-buttons, .rule-modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .edit-modal-buttons button, .rule-modal-buttons button {
+            flex: 1;
+            margin: 0;
+        }
+        .edit-modal-buttons button#cancel-edit-button,
+        .rule-modal-buttons button#cancel-rule-button {
+            background: var(--bl);
+            color: var(--p);
+        }
+        @media (max-width: 768px) {
+            body { padding: 20px 10px 10px; }
+            .panel { padding: 1.5rem; }
+            .main-container { gap: 1.5rem; }
+            button { 
+                padding: 0.75rem; 
+                font-size: 0.9rem; 
+                width: 100%; 
+                margin: 0.5rem 0; 
+            }
+            #analysis-report .analysis-item-header { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 0.75rem; 
+            }
+            #analysis-report .action-buttons { flex-direction: column; }
+            #analysis-report button.extract-btn, #analysis-report button.edit-btn, #analysis-report button.save-rule-btn { width: 100%; }
+            .rule-item { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 0.75rem; 
+            }
+            .rule-item button.remove-rule-btn { width: 100%; }
+            .action-buttons { flex-direction: column; }
+            .builder-item { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 0.75rem; 
+            }
+            .builder-item .move-btn, .builder-item .remove-btn, .builder-item .edit-btn {
+                width: auto;
+                align-self: flex-start;
+            }
+            .builder-item .content { width: 100%; }
+            .output-header { 
+                flex-direction: column; 
+                align-items: flex-start; 
+            }
+            .output-header h2 { margin-bottom: 0.75rem; }
+            .output-header button { 
+                width: 100%; 
+                margin-bottom: 0.75rem; 
+            }
+            .output-code { 
+                max-height: 300px; 
+                font-size: 0.8rem; 
+            }
+            .edit-modal-content, .rule-modal-content {
+                max-width: 95%;
+                width: 95%;
+                padding: 1.5rem;
+                max-height: 90vh;
+            }
+            textarea#edit-component-content, textarea#rule-modal-content {
+                min-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🧩 Component Builder v10 (Dual Mode - Enhanced)</h1>
+
+    <div class="main-container">
+        <div class="panel">
+            <h2>1. Paste Input</h2>
+            
+            <label for="input-type-select">Input Type:</label>
+            <select id="input-type-select">
+                <option value="html" selected>Full HTML Document</option>
+                <option value="regex">Custom Code Snippets (JS, etc.)</option>
+            </select>
+            
+            <textarea id="html-input" placeholder="Paste your full HTML document here..."></textarea>
+            <button id="process-button">Analyze HTML</button>
+            <button id="clear-input-button">Clear</button>
+            <div id="status" class="status"></div>
+        </div>
+
+        <div class="panel" id="dynamic-panel-2">
+            <!-- Content is injected by render() based on input type -->
+        </div>
+
+        <div class="panel">
+            <h2>3. Extracted Sections</h2>
+            <div id="components-list">
+                <p style="color: #94a3b8;">Run analysis to see sections...</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>4. Build Template</h2>
+            <label for="page-title">Page Title (HTML mode):</label>
+            <input type="text" id="page-title" value="Built Template">
+            <button id="download-button">Download File</button>
+            <button id="copy-button">Copy Full Code</button>
+            <button id="save-button">Save Template</button>
+            <button id="load-button">Load Saved</button>
+            <button id="clear-builder-button">Clear Builder</button>
+            <div id="save-status"></div>
+            <div class="builder-area" id="builder">
+                <h3>Add sections here to build</h3>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="output-header">
+                <h2 id="output-title">5. Generated Full HTML</h2>
+                <button id="copy-output-button">Copy Output</button>
+            </div>
+            <div id="output-code" class="output-code"></div>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div id="edit-modal" class="edit-modal">
+        <div class="edit-modal-content">
+            <h3>Edit Section</h3>
+            <label for="edit-component-name">Section Name:</label>
+            <input type="text" id="edit-component-name" placeholder="Section name">
+            <label for="edit-component-description">Description:</label>
+            <textarea id="edit-component-description" placeholder="Plain language description of what this section does..."></textarea>
+            <label for="edit-component-content">Content:</label>
+            <textarea id="edit-component-content" placeholder="Edit content..."></textarea>
+            <div class="edit-modal-buttons">
+                <button id="save-edit-button">Save Changes</button>
+                <button id="cancel-edit-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RULE MODAL -->
+    <div id="rule-modal" class="rule-modal">
+        <div class="rule-modal-content">
+            <h3>Save as Extraction Rule</h3>
+            <label for="rule-modal-name">Rule Name:</label>
+            <input type="text" id="rule-modal-name" placeholder="e.g., API Endpoints Var">
+            <label for="rule-modal-start">Start Marker:</label>
+            <textarea id="rule-modal-start" placeholder="Text that marks the START of the snippet"></textarea>
+            <label for="rule-modal-end">End Marker:</label>
+            <textarea id="rule-modal-end" placeholder="Text that marks the END of the snippet"></textarea>
+            <label for="rule-modal-description">Description:</label>
+            <textarea id="rule-modal-description" placeholder="Explanation of what this snippet does..."></textarea>
+            <label for="rule-modal-type">Assign Type (for Builder):</label>
+            <select id="rule-modal-type">
+                <option value="script">Script</option>
+                <option value="styles">Styles</option>
+                <option value="head-extras">Head Extras</option>
+                <option value="body">Body Content</option>
+            </select>
+            <div class="rule-modal-buttons">
+                <button id="save-rule-button">Save Rule</button>
+                <button id="cancel-rule-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================================================================
+        // 1. APPLICATION STATE
+        // ==================================================================
+        const appState = {
+            inputType: 'html',
+            analysisReportHTML: {
+                hasData: false,
+                headExtras: null,
+                styles: [],
+                body: null,
+                scripts: []
+            },
+            analysisReportRegex: {
+                hasData: false,
+                matches: []
+            },
+            extractionRules: [],
+            components: [],
+            builderItems: [],
+            status: { message: '', isError: false, timeoutId: null },
+            saveStatus: { message: '', timeoutId: null },
+            editModal: { isOpen: false, editIndex: null, type: null },
+            ruleModal: { isOpen: false, matchId: null }
+        };
+
+        // ==================================================================
+        // 2. TEMPLATE HTML FOR DYNAMIC PANEL
+        // ==================================================================
+        const panelTemplates = {
+            html: `
+                <h2>2. Analysis Report & Extractor</h2>
+                <div id="analysis-report">
+                    <p style="color: #94a3b8;">Paste and analyze first...</p>
+                </div>
+            `,
+            regex: `
+                <h2>2. Analysis Report (Custom)</h2>
+                <div id="regex-report">
+                    <p style="color: #94a3b8;">Paste code and click 'Analyze Snippets'...</p>
+                </div>
+                
+                <h2 style="margin-top: 30px;">Define Extraction Rules</h2>
+                <div id="extraction-rules-list">
+                    <!-- Rules rendered by renderExtractionRules() -->
+                </div>
+                <div class="rule-form">
+                    <h3>Add New Rule</h3>
+                    <label for="rule-name">Rule Name:</label>
+                    <input type="text" id="rule-name" placeholder="e.g., Worker Entrypoint">
+                    <label for="rule-start">Start Marker:</label>
+                    <textarea id="rule-start" placeholder="Text that marks the START of the snippet (e.g., 'export default {')"></textarea>
+                    <label for="rule-end">End Marker:</label>
+                    <textarea id="rule-end" placeholder="Text that marks the END of the snippet (e.g., '}')"></textarea>
+                    <label for="rule-description">Description:</label>
+                    <textarea id="rule-description" placeholder="Explanation of what this snippet does... (e.g., 'Main Worker entrypoint for handling requests')"></textarea>
+                    <label for="rule-type">Assign Type (for Builder):</label>
+                    <select id="rule-type">
+                        <option value="script">Script</option>
+                        <option value="styles">Styles</option>
+                        <option value="head-extras">Head Extras</option>
+                        <option value="body">Body Content</option>
+                    </select>
+                    <button id="add-rule-button">Add Rule</button>
+                </div>
+            `
+        };
+
+        // ==================================================================
+        // 3. RENDER FUNCTIONS
+        // ==================================================================
+        function render() {
+            const statusEl = document.getElementById('status');
+            if (appState.status.message) {
+                statusEl.textContent = appState.status.message;
+                statusEl.classList.add('show');
+                statusEl.classList.toggle('error', appState.status.isError);
+            } else {
+                statusEl.classList.remove('show');
+            }
+
+            const saveStatusEl = document.getElementById('save-status');
+            saveStatusEl.textContent = appState.saveStatus.message;
+
+            renderDynamicPanel();
+
+            const componentsListEl = document.getElementById('components-list');
+            if (appState.components.length === 0) {
+                componentsListEl.innerHTML = `<p style="color: #94a3b8;">Run analysis to see sections...</p>`;
+            } else {
+                componentsListEl.innerHTML = appState.components.map((comp) => `
+                    <div class="component-block" data-action="add-tap" data-comp-id="${comp.id}">
+                        <div class="component-title">
+                            ${escapeHtml(comp.name)} (${comp.type})
+                            <span style="font-size: 0.8rem; color: #94a3b8;">#${comp.id}</span>
+                        </div>
+                        <div class="component-description">${escapeHtml(comp.description)}</div>
+                        <pre class="component-${comp.type || 'html'}"><code>${escapeHtml((comp.content || '').substring(0, 150))}...</code></pre>
+                        <div class="action-buttons">
+                            <button data-action="add" data-comp-id="${comp.id}">Add to Builder</button>
+                            <button data-action="copy-comp" data-comp-id="${comp.id}">Copy Content</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const builderEl = document.getElementById('builder');
+            if (appState.builderItems.length === 0) {
+                builderEl.innerHTML = '<h3>Add sections here to build</h3>';
+            } else {
+                builderEl.innerHTML = '<h3>' + appState.builderItems.length + ' section(s) added</h3>' +
+                    appState.builderItems.map((item, idx) => `
+                        <div class="builder-item">
+                            <button class="move-btn up" data-action="move-up" data-index="${idx}" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                            <button class="move-btn down" data-action="move-down" data-index="${idx}" ${idx === appState.builderItems.length - 1 ? 'disabled' : ''}>↓</button>
+                            <button class="edit-btn" data-action="edit" data-index="${idx}">Edit</button>
+                            <button class="remove-btn" data-action="remove" data-index="${idx}">Remove</button>
+                            <div class="content">
+                                <strong>${escapeHtml(item.name)}</strong>
+                                <div style="font-size: 0.85rem; color: #94a3b8; margin: 0.5rem 0;">Type: ${item.type}</div>
+                                <div class="builder-description">${escapeHtml(item.description)}</div>
+                                <pre class="component-${item.type || 'html'}"><code>${escapeHtml((item.content || '').substring(0, 100))}...</code></pre>
+                            </div>
+                        </div>
+                    `).join('');
+            }
+
+            document.getElementById('output-code').textContent = generateOutputCode();
+            document.getElementById('output-title').textContent = appState.inputType === 'html' ? '5. Generated Full HTML' : '5. Generated Script/Text';
+
+            const editModalEl = document.getElementById('edit-modal');
+            if (appState.editModal.isOpen) {
+                const idx = appState.editModal.editIndex;
+                let item;
+                if (appState.editModal.type === 'builder') {
+                    item = appState.builderItems[idx];
+                } else if (appState.editModal.type === 'regex') {
+                    item = appState.analysisReportRegex.matches.find(m => m.id === idx);
+                }
+                document.getElementById('edit-component-name').value = item.name;
+                document.getElementById('edit-component-description').value = item.description || '';
+                document.getElementById('edit-component-content').value = item.content;
+                editModalEl.classList.add('show');
+            } else {
+                editModalEl.classList.remove('show');
+            }
+
+            const ruleModalEl = document.getElementById('rule-modal');
+            if (appState.ruleModal.isOpen) {
+                const match = appState.analysisReportRegex.matches.find(m => m.id === appState.ruleModal.matchId);
+                if (match) {
+                    const lines = match.content.split('\n').filter(line => line.trim());
+                    document.getElementById('rule-modal-name').value = match.name;
+                    document.getElementById('rule-modal-start').value = lines[0] || '';
+                    document.getElementById('rule-modal-end').value = lines[lines.length - 1] || '';
+                    document.getElementById('rule-modal-description').value = match.description || '';
+                    document.getElementById('rule-modal-type').value = match.type || 'script';
+                    ruleModalEl.classList.add('show');
+                }
+            } else {
+                ruleModalEl.classList.remove('show');
+            }
+        }
+
+        function renderDynamicPanel() {
+            const panelEl = document.getElementById('dynamic-panel-2');
+            panelEl.innerHTML = panelTemplates[appState.inputType];
+            if (appState.inputType === 'html') {
+                renderAnalysisReportHTML();
+            } else {
+                renderAnalysisReportRegex();
+                renderExtractionRules();
+            }
+        }
+
+        function renderAnalysisReportHTML() {
+            const analysisReportEl = document.getElementById('analysis-report');
+            if (!analysisReportEl) return;
+            if (!appState.analysisReportHTML.hasData) {
+                analysisReportEl.innerHTML = '<p style="color: #94a3b8;">Paste and analyze first...</p>';
+                return;
+            }
+            const report = appState.analysisReportHTML;
+            let html = '';
+            if (report.headExtras) {
+                html += createReportItemHTML(report.headExtras, isExtracted(report.headExtras.id));
+            }
+            report.styles.forEach(style => {
+                html += createReportItemHTML(style, isExtracted(style.id));
+            });
+            if (report.body) {
+                html += createReportItemHTML(report.body, isExtracted(report.body.id));
+            }
+            report.scripts.forEach(script => {
+                html += createReportItemHTML(script, isExtracted(script.id));
+            });
+            analysisReportEl.innerHTML = html || '<p style="color: #94a3b8;">Analysis complete, but no extractable sections were found.</p>';
+        }
+
+        function createReportItemHTML(item, isExtracted) {
+            const preview = (item.content || '').substring(0, 200) + (item.content.length > 200 ? '...' : '');
+            return `
+                <div class="analysis-item">
+                    <div class="analysis-item-header">
+                        <span class="analysis-item-title">${escapeHtml(item.name)}</span>
+                        <div class="action-buttons">
+                            <button class="extract-btn" data-action="extract-html-item" data-item-id="${item.id}" ${isExtracted ? 'disabled' : ''}>
+                                ${isExtracted ? 'Extracted ✓' : 'Extract'}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="analysis-explanation"><strong>What this does:</strong> ${escapeHtml(item.description)}</div>
+                    <pre class="analysis-item-preview component-${item.type || 'html'}"><code>${escapeHtml(preview)}</code></pre>
+                </div>
+            `;
+        }
+
+        function renderAnalysisReportRegex() {
+            const regexReportEl = document.getElementById('regex-report');
+            if (!regexReportEl) return;
+            if (!appState.analysisReportRegex.hasData) {
+                regexReportEl.innerHTML = '<p style="color: #94a3b8;">Paste code and click \'Analyze Snippets\'...</p>';
+                return;
+            }
+            if (appState.analysisReportRegex.matches.length === 0) {
+                regexReportEl.innerHTML = '<p style="color: #94a3b8;">Analysis complete, but no snippets matched your rules.</p>';
+                return;
+            }
+            let html = '';
+            appState.analysisReportRegex.matches.forEach(match => {
+                const preview = (match.content || '').substring(0, 200) + (match.content.length > 200 ? '...' : '');
+                html += `
+                    <div class="analysis-item">
+                        <div class="analysis-item-header">
+                            <span class="analysis-item-title">${escapeHtml(match.name)}</span>
+                            <div class="action-buttons">
+                                <button class="extract-btn" data-action="extract-regex" data-match-id="${match.id}" ${match.isExtracted ? 'disabled' : ''}>
+                                    ${match.isExtracted ? 'Extracted ✓' : 'Extract'}
+                                </button>
+                                <button class="edit-btn" data-action="edit-regex" data-match-id="${match.id}">Edit</button>
+                                <button class="save-rule-btn" data-action="save-as-rule" data-match-id="${match.id}">Save as Rule</button>
+                            </div>
+                        </div>
+                        <div class="analysis-explanation"><strong>What this does:</strong> ${escapeHtml(match.description)}</div>
+                        <pre class="analysis-item-preview component-${match.type || 'script'}"><code>${escapeHtml(preview)}</code></pre>
+                    </div>
+                `;
+            });
+            regexReportEl.innerHTML = html;
+        }
+
+        function renderExtractionRules() {
+            const rulesListEl = document.getElementById('extraction-rules-list');
+            if (!rulesListEl) return;
+            if (appState.extractionRules.length === 0) {
+                rulesListEl.innerHTML = '<p style="color: #94a3b8;">No extraction rules defined. Add one below or save from analysis results.</p>';
+                return;
+            }
+            rulesListEl.innerHTML = appState.extractionRules.map(rule => `
+                <div class="rule-item">
+                    <div class="rule-item-details">
+                        <div class="rule-item-name">${escapeHtml(rule.name)} (${rule.type})</div>
+                        <div class="rule-item-markers">
+                            <strong>Start:</strong> ${escapeHtml(rule.start.substring(0, 50))}...<br>
+                            <strong>End:</strong> ${escapeHtml(rule.end.substring(0, 50))}...
+                        </div>
+                    </div>
+                    <button class="remove-rule-btn" data-action="remove-rule" data-rule-id="${rule.id}">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        // ==================================================================
+        // 4. LOGIC FUNCTIONS
+        // ==================================================================
+        function showStatus(msg, isError = false) {
+            if (appState.status.timeoutId) clearTimeout(appState.status.timeoutId);
+            appState.status.message = msg;
+            appState.status.isError = isError;
+            appState.status.timeoutId = setTimeout(() => {
+                appState.status.message = '';
+                appState.status.timeoutId = null;
+                render();
+            }, 3000);
+            render();
+        }
+
+        function showSaveStatus(msg) {
+            if (appState.saveStatus.timeoutId) clearTimeout(appState.saveStatus.timeoutId);
+            appState.saveStatus.message = msg;
+            appState.saveStatus.timeoutId = setTimeout(() => {
+                appState.saveStatus.message = '';
+                appState.saveStatus.timeoutId = null;
+                render();
+            }, 3000);
+            render();
+        }
+
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function switchInputType(e) {
+            const newType = e.target.value;
+            appState.inputType = newType;
+            const placeholder = newType === 'html'
+                ? 'Paste your full HTML document here...'
+                : 'Paste your custom code snippet (e.g., JS, CSS) here...';
+            const buttonText = newType === 'html'
+                ? 'Analyze HTML'
+                : 'Analyze Snippets';
+            document.getElementById('html-input').placeholder = placeholder;
+            document.getElementById('process-button').textContent = buttonText;
+            clearState(false);
+            render();
+        }
+
+        function processInput() {
+            if (appState.inputType === 'html') {
+                processInputAsHtml();
+            } else {
+                processInputAsRegex();
+            }
+        }
+
+        function processInputAsHtml() {
+            const input = document.getElementById('html-input').value;
+            if (!input.trim()) {
+                showStatus('Please paste HTML', true);
+                return;
+            }
+            clearState(false);
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(input, 'text/html');
+                let headExtras = '';
+                const head = doc.querySelector('head');
+                if (head) {
+                    const headClone = head.cloneNode(true);
+                    headClone.querySelectorAll('style, script').forEach(el => el.remove());
+                    headExtras = headClone.innerHTML.trim();
+                }
+                const bodyContent = (doc.querySelector('body') ? doc.querySelector('body').innerHTML : '').trim();
+                const headStyles = Array.from(head ? head.querySelectorAll('style') : []).map((style, idx) => ({
+                    id: `head-style-${idx}`, name: `Head Styles ${idx + 1}`, type: 'styles', content: style.outerHTML,
+                    description: 'CSS rules for styling the page, found in the <head>.'
+                }));
+                const bodyStyles = Array.from(doc.querySelectorAll('body style')).map((style, idx) => ({
+                    id: `body-style-${idx}`, name: `Body Styles ${idx + 1}`, type: 'styles', content: style.outerHTML,
+                    description: 'CSS rules for styling the page, found in the <body>.'
+                }));
+                const scripts = Array.from(doc.querySelectorAll('script')).map((script, idx) => ({
+                    id: `script-${idx}`, name: script.src ? `External Script ${idx + 1}` : `Inline Script ${idx + 1}`, type: 'scripts', content: script.outerHTML,
+                    description: script.src ? `External JS from ${script.src}` : 'Inline JS for page interactivity.',
+                    src: script.src || ''
+                }));
+                appState.analysisReportHTML.hasData = true;
+                if (headExtras) appState.analysisReportHTML.headExtras = { id: 'head-extras', name: 'Head Extras', type: 'head-extras', content: headExtras, description: 'Essential <head> tags (meta, links, etc.)' };
+                if (bodyContent) appState.analysisReportHTML.body = { id: 'body', name: 'Body Content', type: 'body', content: bodyContent, description: 'Main HTML content' };
+                appState.analysisReportHTML.styles = [...headStyles, ...bodyStyles];
+                appState.analysisReportHTML.scripts = scripts;
+                showStatus(`Analysis complete! Review the report to extract sections.`);
+            } catch (e) {
+                showStatus(`Error: ${e.message}`, true);
+            }
+            render();
+        }
+
+        function processInputAsRegex() {
+            const input = document.getElementById('html-input').value;
+            if (!input.trim()) {
+                showStatus('Please paste your code snippet', true);
+                return;
+            }
+            clearState(false);
+            let extractedCount = 0;
+            appState.analysisReportRegex.matches = [];
+            appState.analysisReportRegex.hasData = true;
+            if (appState.extractionRules.length === 0) {
+                const autoSections = autoExtractJS(input);
+                autoSections.forEach((section, index) => {
+                    appState.analysisReportRegex.matches.push({
+                        id: `auto-${index}`,
+                        name: section.name,
+                        type: section.type,
+                        content: section.content,
+                        description: section.description,
+                        isExtracted: false
+                    });
+                    extractedCount++;
+                });
+            } else {
+                appState.extractionRules.forEach(rule => {
+                    try {
+                        const start = escapeRegExp(rule.start);
+                        const end = escapeRegExp(rule.end);
+                        const regex = new RegExp(start + '.*?' + end, 'gs');
+                        let match;
+                        let matchIndex = 0;
+                        while ((match = regex.exec(input)) !== null) {
+                            const content = match[0];
+                            appState.analysisReportRegex.matches.push({
+                                id: `match-${rule.id}-${matchIndex}`,
+                                name: `${rule.name} #${matchIndex + 1}`,
+                                type: rule.type,
+                                content: content,
+                                description: rule.description,
+                                isExtracted: false
+                            });
+                            extractedCount++;
+                            matchIndex++;
+                        }
+                    } catch (e) {
+                        showStatus(`Error in rule '${rule.name}': ${e.message}`, true);
+                    }
+                });
+            }
+            if (extractedCount > 0) {
+                showStatus(`Analyzed ${extractedCount} snippets.`);
+            } else {
+                showStatus('Analysis complete, but no snippets matched.', true);
+            }
+            render();
+        }
+
+        function autoExtractJS(input) {
+            const sections = [];
+            let currentDescription = '';
+            let currentContent = '';
+            const lines = input.split('\n');
+            const isWorker = input.includes('export default {') && input.includes('async fetch');
+            const bindingVisual = isWorker ? `
+Visual Example of Bindings:
+Worker Code
+  |
+  v
+env.MY_SECRET --> Cloudflare Resource (e.g., secret or storage)
+Bindings are like plugs connecting your code to Cloudflare services, defined in wrangler.toml.` : '';
+            const doVisual = isWorker ? `
+Visual Example of Durable Objects:
+Worker
+  |
+  v
+Durable Object - Mini-server with storage
+  - Stores data (e.g., chat history)
+  - Handles requests independently
+  - Hibernates when idle` : '';
+            let sectionIndex = 0;
+            lines.forEach((line, idx) => {
+                line = line.trim();
+                if (line.startsWith('//')) {
+                    if (currentContent.trim()) {
+                        let name = currentDescription || 'Unnamed Section';
+                        let description = currentDescription || 'Code block in a Cloudflare Worker.';
+                        if (currentContent.startsWith('var ')) {
+                            const varName = currentContent.split('=')[0].replace('var ', '').trim();
+                            name = `${varName} Var`;
+                            description = `Defines a variable '${varName}' in a Cloudflare Worker.`;
+                        } else if (currentContent.startsWith('function ') || currentContent.startsWith('async function ')) {
+                            const funcName = currentContent.split('(')[0].replace(/^(async )?function /, '').trim();
+                            name = `${funcName} Function`;
+                            description = `A function '${funcName}' in a Cloudflare Worker for handling specific tasks.`;
+                        } else if (currentContent.startsWith('export default {')) {
+                            name = 'Main Worker Entrypoint';
+                            description = 'The main entrypoint of the Cloudflare Worker, handling incoming requests.';
+                        }
+                        if (currentContent.includes('env.')) {
+                            description += ' Uses bindings to connect to external resources like secrets or storage. Check wrangler.toml for configuration.' + bindingVisual;
+                        }
+                        if (currentContent.includes('Durable Object')) {
+                            description += ' Involves Durable Objects, which are mini-servers with built-in storage for stateful apps.' + doVisual;
+                        }
+                        sections.push({
+                            name,
+                            type: 'script',
+                            content: currentContent.trim(),
+                            description
+                        });
+                    }
+                    currentDescription = line.slice(2).trim();
+                    currentContent = '';
+                } else if (line) {
+                    currentContent += line + '\n';
+                    if ((line.includes(';') && currentContent.startsWith('var ')) ||
+                        (line.includes('}') && (currentContent.startsWith('function ') || currentContent.startsWith('async function '))) ||
+                        (line.includes('}') && currentContent.startsWith('export default {'))) {
+                        let name = currentDescription || 'Unnamed Section';
+                        let description = currentDescription || 'Code block in a Cloudflare Worker.';
+                        if (currentContent.startsWith('var ')) {
+                            const varName = currentContent.split('=')[0].replace('var ', '').trim();
+                            name = `${varName} Var`;
+                            description = `Defines a variable '${varName}' in a Cloudflare Worker.`;
+                        } else if (currentContent.startsWith('function ') || currentContent.startsWith('async function ')) {
+                            const funcName = currentContent.split('(')[0].replace(/^(async )?function /, '').trim();
+                            name = `${funcName} Function`;
+                            description = `A function '${funcName}' in a Cloudflare Worker for handling specific tasks.`;
+                        } else if (currentContent.startsWith('export default {')) {
+                            name = 'Main Worker Entrypoint';
+                            description = 'The main entrypoint of the Cloudflare Worker, handling incoming requests.';
+                        }
+                        if (currentContent.includes('env.')) {
+                            description += ' Uses bindings to connect to external resources like secrets or storage. Check wrangler.toml for configuration.' + bindingVisual;
+                        }
+                        if (currentContent.includes('Durable Object')) {
+                            description += ' Involves Durable Objects, which are mini-servers with built-in storage for stateful apps.' + doVisual;
+                        }
+                        sections.push({
+                            name,
+                            type: 'script',
+                            content: currentContent.trim(),
+                            description
+                        });
+                        currentContent = '';
+                        currentDescription = '';
+                    }
+                }
+            });
+            if (currentContent.trim()) {
+                let name = currentDescription || 'Unnamed Section';
+                let description = currentDescription || 'Code block in a Cloudflare Worker.';
+                if (currentContent.startsWith('var ')) {
+                    const varName = currentContent.split('=')[0].replace('var ', '').trim();
+                    name = `${varName} Var`;
+                    description = `Defines a variable '${varName}' in a Cloudflare Worker.`;
+                } else if (currentContent.startsWith('function ') || currentContent.startsWith('async function ')) {
+                    const funcName = currentContent.split('(')[0].replace(/^(async )?function /, '').trim();
+                    name = `${funcName} Function`;
+                    description = `A function '${funcName}' in a Cloudflare Worker for handling specific tasks.`;
+                } else if (currentContent.startsWith('export default {')) {
+                    name = 'Main Worker Entrypoint';
+                    description = 'The main entrypoint of the Cloudflare Worker, handling incoming requests.';
+                }
+                if (currentContent.includes('env.')) {
+                    description += ' Uses bindings to connect to external resources like secrets or storage. Check wrangler.toml for configuration.' + bindingVisual;
+                }
+                if (currentContent.includes('Durable Object')) {
+                    description += ' Involves Durable Objects, which are mini-servers with built-in storage for stateful apps.' + doVisual;
+                }
+                sections.push({
+                    name,
+                    type: 'script',
+                    content: currentContent.trim(),
+                    description
+                });
+            }
+            return sections;
+        }
+
+        function isExtracted(itemId) {
+            return appState.components.some(comp => comp.id === itemId);
+        }
+
+        function extractComponentHTMLItem(itemId, button) {
+            const report = appState.analysisReportHTML;
+            let item = null;
+            if (report.headExtras && report.headExtras.id === itemId) {
+                item = report.headExtras;
+                report.headExtras = null;
+            } else if (report.body && report.body.id === itemId) {
+                item = report.body;
+                report.body = null;
+            } else {
+                let index = report.styles.findIndex(s => s.id === itemId);
+                if (index !== -1) {
+                    item = report.styles[index];
+                    report.styles.splice(index, 1);
+                } else {
+                    index = report.scripts.findIndex(s => s.id === itemId);
+                    if (index !== -1) {
+                        item = report.scripts[index];
+                        report.scripts.splice(index, 1);
+                    }
+                }
+            }
+            if (item) {
+                appState.components.push(item);
+                button.disabled = true;
+                button.textContent = 'Extracted ✓';
+                showStatus(`Extracted '${item.name}'.`);
+            } else {
+                showStatus(`No section found with ID ${itemId}.`, true);
+            }
+            render();
+        }
+
+        function extractComponentRegex(matchId, button) {
+            const match = appState.analysisReportRegex.matches.find(m => m.id === matchId);
+            if (match && !match.isExtracted) {
+                match.isExtracted = true;
+                appState.components.push(match);
+                button.disabled = true;
+                button.textContent = 'Extracted ✓';
+                showStatus(`Extracted '${match.name}'.`);
+            }
+            render();
+        }
+
+        function editRegexMatch(matchId) {
+            appState.editModal.isOpen = true;
+            appState.editModal.editIndex = matchId;
+            appState.editModal.type = 'regex';
+            render();
+        }
+
+        function saveAsRule(matchId) {
+            appState.ruleModal.isOpen = true;
+            appState.ruleModal.matchId = matchId;
+            render();
+        }
+
+        function saveRuleFromModal() {
+            const name = document.getElementById('rule-modal-name').value;
+            const start = document.getElementById('rule-modal-start').value;
+            const end = document.getElementById('rule-modal-end').value;
+            const description = document.getElementById('rule-modal-description').value;
+            const type = document.getElementById('rule-modal-type').value;
+            if (!name || !start || !end || !description) {
+                showStatus('Please fill in all fields for the rule', true);
+                return;
+            }
+            appState.extractionRules.push({
+                id: `rule-${Date.now()}`,
+                name,
+                start,
+                end,
+                description,
+                type
+            });
+            appState.ruleModal.isOpen = false;
+            appState.ruleModal.matchId = null;
+            showStatus('Rule saved!');
+            render();
+        }
+
+        function cancelRuleModal() {
+            appState.ruleModal.isOpen = false;
+            appState.ruleModal.matchId = null;
+            render();
+        }
+
+        function addRule() {
+            const name = document.getElementById('rule-name').value;
+            const start = document.getElementById('rule-start').value;
+            const end = document.getElementById('rule-end').value;
+            const description = document.getElementById('rule-description').value;
+            const type = document.getElementById('rule-type').value;
+            if (!name || !start || !end || !description) {
+                showStatus('Please fill in all fields for the rule, including description', true);
+                return;
+            }
+            appState.extractionRules.push({
+                id: `rule-${Date.now()}`,
+                name,
+                start,
+                end,
+                description,
+                type
+            });
+            document.getElementById('rule-name').value = '';
+            document.getElementById('rule-start').value = '';
+            document.getElementById('rule-end').value = '';
+            document.getElementById('rule-description').value = '';
+            showStatus('Rule added!');
+            render();
+        }
+
+        function removeRule(ruleId) {
+            appState.extractionRules = appState.extractionRules.filter(r => r.id !== ruleId);
+            render();
+        }
+
+        function addToBuilder(compId) {
+            const comp = appState.components.find(c => c.id === compId);
+            if (!comp) return;
+            appState.builderItems.push({...comp, builderId: `build-${Date.now()}`});
+            showStatus('Added to builder!');
+            render();
+        }
+
+        function moveBuilderItem(idx, direction) {
+            if (direction === 'up' && idx > 0) {
+                [appState.builderItems[idx - 1], appState.builderItems[idx]] = [appState.builderItems[idx], appState.builderItems[idx - 1]];
+            } else if (direction === 'down' && idx < appState.builderItems.length - 1) {
+                [appState.builderItems[idx + 1], appState.builderItems[idx]] = [appState.builderItems[idx], appState.builderItems[idx + 1]];
+            }
+            render();
+        }
+
+        function removeBuilderItem(idx) {
+            appState.builderItems.splice(idx, 1);
+            render();
+        }
+
+        function openEditModal(idx, type = 'builder') {
+            appState.editModal.isOpen = true;
+            appState.editModal.editIndex = idx;
+            appState.editModal.type = type;
+            render();
+        }
+
+        function cancelEdit() {
+            appState.editModal.isOpen = false;
+            appState.editModal.editIndex = null;
+            appState.editModal.type = null;
+            render();
+        }
+
+        function saveEdit() {
+            const idx = appState.editModal.editIndex;
+            if (idx === null || idx === undefined) return;
+            let item;
+            if (appState.editModal.type === 'builder') {
+                item = appState.builderItems[idx];
+            } else if (appState.editModal.type === 'regex') {
+                item = appState.analysisReportRegex.matches.find(m => m.id === idx);
+            }
+            if (item) {
+                item.name = document.getElementById('edit-component-name').value;
+                item.description = document.getElementById('edit-component-description').value;
+                item.content = document.getElementById('edit-component-content').value;
+                appState.editModal.isOpen = false;
+                appState.editModal.editIndex = null;
+                appState.editModal.type = null;
+                showStatus('Section updated!');
+            }
+            render();
+        }
+
+        function saveTemplate() {
+            if (appState.builderItems.length === 0) {
+                showStatus('No sections to save', true);
+                return;
+            }
+            const name = prompt('Template name:', `My ${appState.inputType} Template`);
+            if (!name) return;
+            const templates = JSON.parse(localStorage.getItem('cssTemplates') || '{}');
+            templates[name] = {
+                inputType: appState.inputType,
+                items: appState.builderItems,
+                rules: appState.extractionRules,
+                created: new Date().toISOString()
+            };
+            localStorage.setItem('cssTemplates', JSON.stringify(templates));
+            showSaveStatus(`✓ Saved as "${name}"`);
+        }
+
+        function loadTemplate() {
+            const templates = JSON.parse(localStorage.getItem('cssTemplates') || '{}');
+            const names = Object.keys(templates);
+            if (names.length === 0) {
+                showStatus('No saved templates', true);
+                return;
+            }
+            const name = prompt(`Saved templates:\n\n${names.join('\n')}\n\nEnter name to load:`);
+            if (!name || !templates[name]) {
+                showStatus('Template not found', true);
+                return;
+            }
+            const tpl = templates[name];
+            appState.inputType = tpl.inputType || 'html';
+            appState.builderItems = tpl.items || [];
+            appState.extractionRules = tpl.rules || appState.extractionRules;
+            document.getElementById('input-type-select').value = appState.inputType;
+            switchInputType({ target: { value: appState.inputType } });
+            showStatus(`Loaded "${name}" (${tpl.items.length} sections)`);
+            render();
+        }
+
+        function clearState(clearRules = true) {
+            appState.analysisReportHTML = { hasData: false, headExtras: null, styles: [], body: null, scripts: [] };
+            appState.analysisReportRegex = { hasData: false, matches: [] };
+            appState.components = [];
+            appState.builderItems = [];
+            if (clearRules) {
+                appState.extractionRules = [];
+            }
+        }
+
+        function clearInput() {
+            document.getElementById('html-input').value = '';
+            clearState(true);
+            showStatus('Cleared all sections and rules.');
+            render();
+        }
+
+        function clearBuilder() {
+            appState.builderItems = [];
+            showStatus('Builder cleared.');
+            render();
+        }
+
+        function copyComponent(compId) {
+            const comp = appState.components.find(c => c.id === compId);
+            if (!comp) return;
+            navigator.clipboard.writeText(comp.content).then(() => {
+                showStatus('Content copied!');
+            });
+        }
+
+        function copyTemplate() {
+            const code = generateOutputCode();
+            if (!code.trim()) {
+                showStatus('Nothing to copy!', true);
+                return;
+            }
+            navigator.clipboard.writeText(code).then(() => {
+                showStatus('Full code copied!');
+            }).catch(() => showStatus('Copy failed', true));
+        }
+
+        function downloadTemplate() {
+            const code = generateOutputCode();
+            const fileExtension = appState.inputType === 'html' ? 'html' : 'js';
+            const mimeType = appState.inputType === 'html' ? 'text/html' : 'application/javascript';
+            const blob = new Blob([code], {type: mimeType});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `template-${Date.now()}.${fileExtension}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateOutputCode() {
+            if (appState.inputType === 'html') {
+                let headExtrasContent = '';
+                let stylesContent = '';
+                let bodyContent = '';
+                let scriptsContent = '';
+                appState.builderItems.forEach(item => {
+                    switch (item.type) {
+                        case 'head-extras': headExtrasContent += `\n    ${item.content}\n`; break;
+                        case 'styles': stylesContent += `\n    ${item.content}\n`; break;
+                        case 'body': bodyContent += `\n    ${item.content}\n`; break;
+                        case 'scripts': scriptsContent += `\n    ${item.content}\n`; break;
+                        default: bodyContent += `\n    <!-- Unknown type: ${item.type} -->\n    ${item.content}\n`;
+                    }
+                });
+                return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${document.getElementById('page-title').value}</title>${headExtrasContent}${stylesContent}
+</head>
+<body>${bodyContent}${scriptsContent}
+</body>
+</html>`;
+            } else {
+                return appState.builderItems
+                    .map(item => `// --- Snippet: ${item.name} (Type: ${item.type}) ---\n// ${item.description.replace(/\n/g, '\n// ')}\n\n${item.content}`)
+                    .join('\n\n// ==================================================\n\n');
+            }
+        }
+
+        // ==================================================================
+        // 5. EVENT LISTENERS
+        // ==================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('input-type-select').addEventListener('change', switchInputType);
+            document.getElementById('process-button').addEventListener('click', processInput);
+            document.getElementById('clear-input-button').addEventListener('click', clearInput);
+            document.getElementById('download-button').addEventListener('click', downloadTemplate);
+            document.getElementById('copy-button').addEventListener('click', copyTemplate);
+            document.getElementById('save-button').addEventListener('click', saveTemplate);
+            document.getElementById('load-button').addEventListener('click', loadTemplate);
+            document.getElementById('clear-builder-button').addEventListener('click', clearBuilder);
+            document.getElementById('copy-output-button').addEventListener('click', copyTemplate);
+            document.getElementById('save-edit-button').addEventListener('click', saveEdit);
+            document.getElementById('cancel-edit-button').addEventListener('click', cancelEdit);
+            document.getElementById('save-rule-button').addEventListener('click', saveRuleFromModal);
+            document.getElementById('cancel-rule-button').addEventListener('click', cancelRuleModal);
+            document.getElementById('dynamic-panel-2').addEventListener('click', (e) => {
+                const extractHtmlItemBtn = e.target.closest('[data-action="extract-html-item"]');
+                const extractRegexBtn = e.target.closest('[data-action="extract-regex"]');
+                const editRegexBtn = e.target.closest('[data-action="edit-regex"]');
+                const saveRuleBtn = e.target.closest('[data-action="save-as-rule"]');
+                const addRuleBtn = e.target.closest('#add-rule-button');
+                const removeRuleBtn = e.target.closest('[data-action="remove-rule"]');
+                if (extractHtmlItemBtn) {
+                    const itemId = extractHtmlItemBtn.dataset.itemId;
+                    extractComponentHTMLItem(itemId, extractHtmlItemBtn);
+                } else if (extractRegexBtn) {
+                    const matchId = extractRegexBtn.dataset.matchId;
+                    extractComponentRegex(matchId, extractRegexBtn);
+                } else if (editRegexBtn) {
+                    const matchId = editRegexBtn.dataset.matchId;
+                    editRegexMatch(matchId);
+                } else if (saveRuleBtn) {
+                    const matchId = saveRuleBtn.dataset.matchId;
+                    saveAsRule(matchId);
+                } else if (addRuleBtn) {
+                    addRule();
+                } else if (removeRuleBtn) {
+                    const ruleId = removeRuleBtn.dataset.ruleId;
+                    removeRule(ruleId);
+                }
+            });
+            document.getElementById('components-list').addEventListener('click', (e) => {
+                const button = e.target.closest('[data-action]');
+                const block = e.target.closest('.component-block');
+                if (!button && !block) return;
+                let action, compId;
+                if (button) {
+                    action = button.dataset.action;
+                    compId = button.dataset.compId;
+                } else if (block) {
+                    action = block.dataset.action;
+                    compId = block.dataset.compId;
+                }
+                if (action === 'add' || action === 'add-tap') {
+                    addToBuilder(compId);
+                } else if (action === 'copy-comp') {
+                    copyComponent(compId);
+                }
+            });
+            document.getElementById('builder').addEventListener('click', (e) => {
+                const button = e.target.closest('[data-action]');
+                if (!button) return;
+                const action = button.dataset.action;
+                const idx = parseInt(button.dataset.index, 10);
+                switch (action) {
+                    case 'move-up': moveBuilderItem(idx, 'up'); break;
+                    case 'move-down': moveBuilderItem(idx, 'down'); break;
+                    case 'edit': openEditModal(idx, 'builder'); break;
+                    case 'remove': removeBuilderItem(idx); break;
+                }
+            });
+
+            // --- Initial Render ---
+            render();
+        });
+    </script>
+</body>
+</html>
