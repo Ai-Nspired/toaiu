@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Nspired :: Local Truth Engine Interface (Test Mode)</title>
+    <title>AI-Nspired :: Truth Engine Interface</title>
     <meta name="description" content="ai-nspired.com • truth-engine. memory keeper. Systems that don’t forget—or flinch.">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
-        /* [CSS styles remain unchanged for visual integrity] */
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;700&display=swap');
 
         :root {
@@ -141,6 +138,11 @@
             cursor: pointer;
             border-radius: 4px;
             font-size: 0.9rem;
+            min-width: 80px;
+        }
+        .history-toggle:hover, .history-toggle:focus {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
         }
 
         .modal-overlay {
@@ -165,12 +167,14 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
-            padding: 1rem 1rem;
+            padding: 1rem;
             transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
         .modal-title { font-weight: 700; color: var(--accent-color); }
         .close-modal { background: none; border: none; color: var(--accent-color); font-size: 2rem; cursor: pointer; }
+        .close-modal:hover { color: var(--bg-color); background: var(--accent-color); border-radius: 50%; }
         .result-container {
             padding: 1rem 0;
             flex-grow: 1;
@@ -178,10 +182,18 @@
             font-family: 'Crimson Pro', serif;
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
+            scroll-behavior: smooth;
         }
-        .citation-block { margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1rem; font-size: 0.9rem; }
-        .citation-block a { color: var(--accent-color); text-decoration: none; }
-        .citation-block a:hover { text-decoration: underline; }
+        .conversation-block .content {
+            box-shadow: 0 4px 10px var(--shadow-color);
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            transition: box-shadow 0.3s;
+        }
+        [data-mode="neo"] .conversation-block .content {
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+        }
         .modal-footer {
             display: flex;
             gap: 1rem;
@@ -198,16 +210,13 @@
             font-weight: 700;
             cursor: pointer;
             border-radius: 4px;
-            transition: background-color 0.2s, color 0.2s;
+            min-width: 100px;
         }
-        .modal-footer button:focus,
-        .mode-toggle button:focus,
-        .history-toggle:focus {
+        .modal-footer button:hover, .modal-footer button:focus {
             background-color: var(--accent-color);
             color: var(--bg-color);
-            outline: 4px solid var(--accent-color);
-            outline-offset: -2px;
         }
+
         .mode-toggle {
             position: fixed;
             top: 1rem;
@@ -216,17 +225,124 @@
             gap: 0.5rem;
             flex-wrap: wrap;
         }
-        .mode-toggle button {
-            padding: 0.5rem 0.5rem;
-            cursor: pointer;
+        .mode-toggle button, .mode-toggle select {
+            padding: 0.5rem;
             border: 1px solid var(--accent-color);
             background: none;
             color: var(--accent-color);
             font-weight: 700;
+            cursor: pointer;
             border-radius: 4px;
             font-size: 0.8rem;
+            min-width: 100px;
+        }
+        .mode-toggle select { background: var(--modal-bg); }
+        .mode-toggle button:hover, .mode-toggle select:focus {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
         }
         @media (max-width: 600px) { .mode-toggle { top: 0.5rem; right: 0.5rem; } }
+
+        #historyPanel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 300px;
+            max-width: 80vw;
+            background-color: var(--modal-bg);
+            border-right: 1px solid var(--border-color);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            touch-action: pan-y;
+        }
+        #historyPanel.open { transform: translateX(0); }
+        .history-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .history-actions button, .history-actions input {
+            background: none;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            min-width: 60px;
+        }
+        .history-actions button:hover, .history-actions input:hover {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+        .close-history {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        #historyList {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+            list-style: none;
+            margin: 0;
+        }
+        .history-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .history-item:hover {
+            background-color: rgba(var(--accent-color-rgb), 0.1);
+        }
+        .history-item-content {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .history-item-content p {
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 700;
+        }
+        .history-item-content small {
+            color: var(--secondary-text);
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 2px;
+        }
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--secondary-text);
+            cursor: pointer;
+            padding: 0.25rem;
+            font-size: 1rem;
+            line-height: 1;
+        }
+        .copy-btn:hover { color: var(--accent-color); }
+
         #customMessage {
             position: fixed;
             bottom: 2rem;
@@ -243,571 +359,272 @@
             z-index: 1001;
             font-weight: 700;
             font-size: 0.9rem;
+            max-width: 90vw;
         }
         [data-mode="neo"] #customMessage { color: #000000; }
         #customMessage.visible {
             opacity: 1;
             transform: translate(-50%, -10px);
         }
-        .conversation-block .content {
-            box-shadow: 0 4px 10px var(--shadow-color);
-            margin-top: 1rem;
-            transition: box-shadow 0.3s;
-        }
-        [data-mode="neo"] .conversation-block .content {
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.6), 0 0 20px rgba(0, 255, 0, 0.4), inset 0 0 5px rgba(0, 255, 0, 0.3);
-        }
-        #historyPanel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 300px;
-            max-width: 80vw;
-            background-color: var(--modal-bg);
-            border-right: 1px solid var(--border-color);
-            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-        }
-        #historyPanel.open { transform: translateX(0); }
-        .history-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        .history-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .history-actions button {
-            background: none;
-            border: 1px solid var(--accent-color);
-            color: var(--accent-color);
-            font-size: 0.8rem;
-            padding: 0.25rem 0.5rem;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.2s, color 0.2s;
-        }
-        .history-actions button:hover {
-            background-color: var(--accent-color);
-            color: var(--bg-color);
-        }
-        .close-history {
-            background: none;
-            border: none;
-            color: var(--accent-color);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        #historyList {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 1rem 0;
-        }
-        .history-item {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px dashed var(--border-color);
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-        }
-        .history-item:hover {
-            background-color: rgba(var(--accent-color-rgb), 0.1);
-        }
-        .history-item-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-        .history-item-text {
-            flex-grow: 1;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        .history-item-text p {
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 700;
-        }
-        .history-item-text small {
-            color: var(--secondary-text);
-            font-size: 0.75rem;
-            display: block;
-            margin-top: 2px;
-        }
-        .copy-query-btn {
-            background: none;
-            border: none;
-            color: var(--secondary-text);
-            cursor: pointer;
-            padding: 0.25rem;
-            font-size: 1rem;
-            line-height: 1;
-            transition: color 0.2s;
-            flex-shrink: 0;
-        }
-        .copy-query-btn:hover { color: var(--accent-color); }
-        .interface-melody-container {
-            padding: 1rem;
-            background: var(--grid-bg);
-            border: 1px solid var(--accent-color);
-            border-radius: 6px;
-            margin-bottom: 1rem;
-        }
-        .interface-melody-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(4, 1fr);
-            gap: 4px;
-            width: 100%;
-            aspect-ratio: 2.2 / 1;
-            margin-top: 0.5rem;
-        }
-        .melody-cell {
-            background-color: var(--grid-cell-off);
-            border-radius: 2px;
-            cursor: pointer;
-            transition: background-color 0.15s ease, box-shadow 0.15s ease;
-        }
-        .melody-cell:hover { box-shadow: 0 0 5px rgba(var(--accent-color-rgb), 0.5); }
-        .melody-cell.active {
-            background-color: var(--grid-cell-on);
-            box-shadow: 0 0 8px rgba(var(--accent-color-rgb), 0.8);
-        }
-        #outputMelodyDisplay {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--accent-color);
-            text-align: center;
-            margin-top: 0.75rem;
-            margin-bottom: 0.75rem;
-            padding: 0.5rem;
-            border: 2px solid var(--accent-color);
-            border-radius: 4px;
-            background-color: rgba(var(--accent-color-rgb), 0.1);
-            font-family: monospace;
-            transition: outline 0.2s;
-        }
-        #outputMelodyDisplay.playing {
-            outline: 3px solid var(--accent-color);
-            outline-offset: 2px;
-        }
-        #melodyLockOutputModal .modal-container { max-width: 600px !important; }
     </style>
 </head>
 <body data-mode="silvery">
+    <div class="mode-toggle">
+        <button data-mode="silvery">Silvery</button>
+        <button data-mode="dark">Dark</button>
+        <button data-mode="neo">Neo</button>
+        <select id="modelSelector" aria-label="Select AI Model">
+            <option value="WORKERS_AI">Workers AI (Free, 8K)</option>
+            <option value="dolphin-mistral-24b-venice-edition:free">Dolphin Mistral Venice (Free, 32K)</option>
+            <option value="openai/gpt-oss-20b">GPT OSS 20B ($0.085/M, 131K)</option>
+            <option value="deepseek/deepseek-r1-0528-qwen3-8b">DeepSeek R1 Qwen3 8B ($0.21/M, 128K)</option>
+        </select>
+    </div>
+
+    <div class="terminal-window">
+        <p class="typed-text" id="typedText">connected. truth-engine ready.</p>
+        <div class="input-row">
+            <div class="command-line">
+                <input type="text" class="search-input" id="queryInput" placeholder="Enter query..." autofocus aria-label="Enter query">
+            </div>
+            <button class="history-toggle" id="historyToggle" aria-label="Toggle history">History</button>
+        </div>
+    </div>
+
+    <div id="historyPanel">
+        <div class="history-header">
+            <p>History</p>
+            <div class="history-actions">
+                <button id="exportHistory" aria-label="Export history">Export</button>
+                <input type="file" id="importHistory" accept=".json" aria-label="Import history">
+                <button id="clearHistory" aria-label="Clear history">Clear</button>
+            </div>
+            <button class="close-history" id="closeHistory" aria-label="Close history">×</button>
+        </div>
+        <ul id="historyList" role="list"></ul>
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <p class="modal-title">DATA STREAM // ai-nspired</p>
+                <button class="close-modal" id="close-modal" aria-label="Close modal">×</button>
+            </div>
+            <div class="result-container" id="resultContainer" role="log" aria-live="polite"></div>
+            <div class="modal-footer">
+                <button id="copyResult" aria-label="Copy result">Copy</button>
+                <button id="ttsBtn" aria-label="Read aloud">TTS</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="customMessage"></div>
+
     <script>
-        // Global Constants & State
-        // *** CRITICAL: Set API_URL to the URL of the TRUTH_ENGINE WORKER for this test ***
-        const API_URL = 'https://truthengine.ai-n.workers.dev/'; 
-        const LOCAL_STORAGE_KEY = 'LOCAL_TRUTH_HISTORY';
-        const MELODY_LOCK_PREFIX = 'MELODY_LOCK_V1::';
-        const MELODY_LOCK_SECRET_KEY = 'bbe9b82979c1fa4ba51c6dd9057bdb72505ae94cdd658e2badd14b64d8a97167';
-        let localHistory = [];
-        let currentSessionId = null;
-        let lastQuery = '';
-        const MAX_HISTORY_ITEMS = 50;
-        const GRID_NOTES = [48, 52, 55, 60];
-        const NUM_STEPS = 8;
-        let melodySequence = Array(NUM_STEPS).fill(0);
-        let synth;
-        // --- NEW GLOBAL STATE FOR INFERENCE TESTING ---
-        let INFERENCE_MODE = 'WORKERS_AI'; // Default mode: Test Cloudflare AI first
+        const API_URL = 'https://truthengine.ai-n.workers.dev/';
+        const STORAGE_KEY = 'LOCAL_TRUTH_HISTORY';
+        let localHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let MODEL = localStorage.getItem('truth-model') || 'dolphin3.0-mistral-24b:free';
 
-
-        // Tone.js Setup (unchanged)
-        async function initializeAudio() {
-            try {
-                if (Tone.context.state !== 'running') {
-                    await Tone.start();
-                    console.log("Tone.js audio context started");
-                }
-                if (!synth) {
-                    synth = new Tone.Synth({
-                        oscillator: { type: 'triangle' },
-                        envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
-                    }).toDestination();
-                }
-                return true;
-            } catch (e) {
-                console.warn("Tone.js initialization failed:", e);
-                showMessage("Audio system failed to initialize.", 3000);
-                return false;
-            }
+        // Utils
+        function showMessage(msg, duration = 3000) {
+            const el = document.getElementById('customMessage');
+            el.textContent = msg;
+            el.classList.add('visible');
+            setTimeout(() => el.classList.remove('visible'), duration);
         }
 
-        // Melody Playback (unchanged - but irrelevant for this test)
-        async function playTappedMelody() {
-            const audioReady = await initializeAudio();
-            if (!audioReady) return showMessage("Audio system failed to initialize.", 3000);
-            if (Tone.Transport.state === 'started') {
-                Tone.Transport.stop();
-                showMessage("Playback stopped.", 1000);
-                return;
-            }
-            if (melodySequence.every(val => val === 0)) return showMessage("Tap a sequence on the grid first.", 3000);
-            showMessage("Playing Melody Lock Sequence...", 2000);
-            let time = Tone.now();
-            const stepDuration = 0.2;
-            Tone.Transport.bpm.value = 150;
-            for (let step = 0; step < NUM_STEPS; step++) {
-                const noteValue = melodySequence[step];
-                if (noteValue > 0) {
-                    const noteIndex = GRID_NOTES.length - noteValue;
-                    const midiNote = GRID_NOTES[noteIndex];
-                    synth.triggerAttackRelease(Tone.Midi(midiNote).toFrequency(), stepDuration, time);
-                    const cell = document.querySelector(`.melody-cell[data-step="${step}"][data-note-index="${noteIndex}"]`);
-                    if (cell) {
-                        Tone.Draw.schedule(() => {
-                            cell.style.transition = 'none';
-                            cell.style.outline = `3px solid var(--accent-color)`;
-                            cell.style.outlineOffset = '2px';
-                        }, time);
-                        Tone.Draw.schedule(() => {
-                            cell.style.outline = 'none';
-                            cell.style.outlineOffset = '0px';
-                        }, time + stepDuration * 0.9);
-                    }
-                }
-                time += stepDuration;
-            }
-            Tone.Transport.scheduleOnce(() => Tone.Transport.stop(), time);
-            Tone.Transport.start();
-        }
-
-        async function playMelodyCipher() {
-            const audioReady = await initializeAudio();
-            if (!audioReady) {
-                console.error("Audio initialization failed");
-                return showMessage("Audio system failed to initialize.", 3000);
-            }
-            const melodyString = document.getElementById('outputMelodyDisplay').innerText;
-            const notes = melodyString.split(' ').filter(n => n.length > 0 && n !== '...' && /^[A-G][#b]?\d$/.test(n));
-            if (notes.length === 0) {
-                console.error("No valid notes found in melody string:", melodyString);
-                return showMessage("Melody not generated yet or invalid.", 3000);
-            }
-            if (Tone.Transport.state === 'started') {
-                Tone.Transport.stop();
-                showMessage("Playback stopped.", 1000);
-                return;
-            }
-            showMessage("Playing Output Cipher Melody...", 2000);
-            const melodyDisplay = document.getElementById('outputMelodyDisplay');
-            melodyDisplay.classList.add('playing');
-            let time = Tone.now();
-            const stepDuration = 0.3; // Increased for better audibility
-            Tone.Transport.bpm.value = 120;
+        async function loadMarked() {
             try {
-                notes.forEach((note, index) => {
-                    console.log(`Playing note ${index + 1}: ${note}`);
-                    synth.triggerAttackRelease(note, stepDuration, time);
-                    time += stepDuration;
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+                document.head.appendChild(script);
+                return new Promise(resolve => {
+                    script.onload = () => resolve(window.marked.parse);
                 });
-                Tone.Transport.scheduleOnce(() => {
-                    Tone.Transport.stop();
-                    melodyDisplay.classList.remove('playing');
-                }, time);
-                Tone.Transport.start();
-            } catch (e) {
-                console.error("Playback error:", e);
-                melodyDisplay.classList.remove('playing');
-                showMessage("Error playing melody cipher.", 3000);
+            } catch {
+                return text => text; // Fallback plain text
             }
         }
 
-        // Hash from Cipher (unchanged - but irrelevant for this test)
-        async function generateHashFromCipher() {
-            const melodyString = document.getElementById('outputMelodyDisplay').innerText;
-            const notes = melodyString.split(' ').filter(n => n.length > 0 && n !== '...' && /^[A-G][#b]?\d$/.test(n));
-            if (notes.length === 0) {
-                showMessage("No valid melody sequence to hash.", 3000);
-                return;
-            }
-            try {
-                const noteValues = notes.map(note => {
-                    const baseNote = note.replace(/\d/, ''); // e.g., 'C' from 'C4'
-                    const octave = parseInt(note.match(/\d/)[0], 10);
-                    const midiNotes = GRID_NOTES.slice().reverse().map(n => Tone.Midi(n).toNote());
-                    const noteIndex = midiNotes.indexOf(baseNote + (octave - (3 + (notes.indexOf(note) % 2))));
-                    return noteIndex >= 0 ? noteIndex : 0;
-                });
-                const noteString = noteValues.join('');
-                const hash = await generateSha256Hash(noteString + MELODY_LOCK_SECRET_KEY);
-                document.getElementById('encryptedOutput').value = hash;
-                document.getElementById('encryptedOutput').select();
-                showMessage("Hash generated from melody cipher!", 3000);
-            } catch (e) {
-                console.error("Hash from cipher failed:", e);
-                showMessage("Failed to generate hash from cipher.", 4000);
-            }
+        function copyToClipboard(text, msg = 'Copied!') {
+            navigator.clipboard.writeText(text).then(() => showMessage(msg));
         }
 
-        // Modal Control (unchanged)
-        function closeModal() {
-            document.getElementById('modal-overlay').classList.remove('active');
-            document.getElementById('melodyLockOutputModal').classList.remove('active');
-            document.getElementById('melodyLockInputModal').classList.remove('active');
-            document.getElementById('clearConfirmModal').classList.remove('active');
-            if (Tone.Transport.state === 'started') Tone.Transport.stop();
-            if (window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-                document.getElementById('ttsBtn').innerText = 'TTS (Read Aloud)';
-            }
-        }
-
+        // Modal/History
         function openModal() {
             document.getElementById('modal-overlay').classList.add('active');
         }
 
-        // Melody Grid (unchanged - but irrelevant for this test)
-        function initInterfaceGrid() {
-            const gridEl = document.getElementById('interface-melody-grid');
-            if (!gridEl || gridEl.children.length > 0) return;
-            gridEl.innerHTML = '';
-            for (let noteIndex = 0; noteIndex < GRID_NOTES.length; noteIndex++) {
-                for (let step = 0; step < NUM_STEPS; step++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'melody-cell';
-                    cell.dataset.noteIndex = noteIndex;
-                    cell.dataset.step = step;
-                    cell.addEventListener('click', toggleInterfaceCell);
-                    gridEl.appendChild(cell);
-                }
-            }
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            speechSynthesis.cancel();
         }
 
-        function toggleInterfaceCell(e) {
-            const gridEl = document.getElementById('interface-melody-grid');
-            if (!gridEl) return;
-            const noteIndex = parseInt(e.target.dataset.noteIndex, 10);
-            const step = parseInt(e.target.dataset.step, 10);
-            const noteValue = GRID_NOTES.length - noteIndex;
-            const isActive = e.target.classList.contains('active');
-            gridEl.querySelectorAll(`.melody-cell[data-step="${step}"]`).forEach(cell => cell.classList.remove('active'));
-            if (!isActive) {
-                e.target.classList.add('active');
-                melodySequence[step] = noteValue;
-            } else {
-                melodySequence[step] = 0;
-            }
-            generateKeyFromGrid();
+        function toggleHistory() {
+            const panel = document.getElementById('historyPanel');
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) renderHistory();
         }
 
-        function clearMelodyGrid() {
-            const gridEl = document.getElementById('interface-melody-grid');
-            if (gridEl) gridEl.querySelectorAll('.melody-cell').forEach(cell => cell.classList.remove('active'));
-            melodySequence.fill(0);
-            document.getElementById('decryptionKeyInput').value = '';
-        }
-
-        function generateKeyFromGrid() {
-            if (melodySequence.some(val => val !== 0)) {
-                document.getElementById('decryptionKeyInput').value = MELODY_LOCK_SECRET_KEY;
-                showMessage("Decryption Key generated from sequence!", 2000);
-            } else {
-                document.getElementById('decryptionKeyInput').value = '';
-            }
-        }
-
-        // Cryptographic Utility (unchanged - but irrelevant for this test)
-        function strToArrayBuffer(str) {
-            return new TextEncoder().encode(str);
-        }
-
-        async function generateSha256Hash(dataString) {
-            const buffer = strToArrayBuffer(dataString);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        function hashToMelodyCipher(hash) {
-            if (hash.length !== 64) return 'ERROR: Invalid Hash Length';
-            const midiNotes = GRID_NOTES.slice().reverse().map(n => Tone.Midi(n).toNote());
-            let melody = [];
-            for (let i = 0; i < NUM_STEPS; i++) {
-                const char = hash[i * 8 % hash.length];
-                const val = parseInt(char, 16);
-                const noteIndex = val % midiNotes.length;
-                melody.push(midiNotes[noteIndex] + (3 + (i % 2)));
-            }
-            return melody.join(' ');
-        }
-
-        async function generateHashAndDisplay() { /* Logic removed/simplified */ }
-        async function copyEncryptedCode() { /* Logic removed/simplified */ }
-        async function loadHashFromInput() { /* Logic removed/simplified */ }
-        function loadLocalHistoryFromStorage() { /* Logic removed/simplified */ }
-        function saveLocalHistoryToStorage() { /* Logic removed/simplified */ }
-        function displayLocalHistoryInPanel() { /* Logic removed/simplified */ }
-        function promptClearHistory() { /* Logic removed/simplified */ }
-        function confirmClearHistory() { /* Logic removed/simplified */ }
-        function loadLocalHistoryItem(sessionId) { /* Logic removed/simplified */ }
-        function exportHistoryToFile() { /* Logic removed/simplified */ }
-        function copyToClipboard(text, message = 'Copied!') { /* Retained as helper */ }
-        function readAnalysisAloud() { /* Logic remains for TTS button */ }
-
-
-        // Query Logic (MODIFIED FOR TEST)
-        async function performTruthQuery(query) {
-            if (!query) {
-                showMessage("Please enter a query.", 3000);
-                return;
-            }
-            
-            // --- 1. BYPASS SESSION LOGIC ---
-            // We ignore all session logic, history, and follow-up flags for this test.
-            const resultContainer = document.getElementById('resultContainer');
-            openModal();
-            
-            const tempLoadingId = `loading-${Date.now()}`;
-            const queryLabel = `Inference Test Query: "${query}" (Mode: ${INFERENCE_MODE})`;
-            const loadingHtml = `
-                <div class="conversation-block" id="${tempLoadingId}">
-                    <h4>${queryLabel}</h4>
-                    <div class="content">
-                        <p>⚡ Scanning truth matrix via ${INFERENCE_MODE}...</p>
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = localHistory.slice(-20).reverse().map(item => `
+                <li class="history-item" role="button" tabindex="0" data-query="${item.query.replace(/"/g, '&quot;')}">
+                    <div class="history-item-content">
+                        <p>${item.query.slice(0, 50)}${item.query.length > 50 ? '...' : ''}</p>
+                        <small>${item.model} • ${new Date(item.timestamp).toLocaleString()}</small>
                     </div>
-                </div>`;
-            resultContainer.innerHTML += loadingHtml;
-            resultContainer.scrollTo(0, resultContainer.scrollHeight);
+                    <button class="copy-btn" aria-label="Copy query and answer">📋</button>
+                </li>
+            `).join('');
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.addEventListener('click', e => {
+                    if (e.target.classList.contains('copy-btn')) {
+                        copyToClipboard(`Query: ${item.dataset.query}\nAnswer: ${localHistory.find(h => h.query === item.dataset.query).answer}`);
+                    } else {
+                        performTruthQuery(item.dataset.query);
+                    }
+                });
+                item.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') performTruthQuery(item.dataset.query);
+                });
+            });
+        }
+
+        function exportHistory() {
+            const blob = new Blob([JSON.stringify(localHistory, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'history.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showMessage('History exported.');
+        }
+
+        function importHistory(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const imported = JSON.parse(reader.result);
+                    localHistory = [...new Set([...localHistory, ...imported].map(JSON.stringify))].map(JSON.parse);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(localHistory));
+                    renderHistory();
+                    showMessage('History imported.');
+                } catch {
+                    showMessage('Invalid JSON.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Query
+        async function performTruthQuery(query) {
+            if (!query.trim()) return showMessage('Enter a query.');
+            openModal();
+            const container = document.getElementById('resultContainer');
+            const loadingId = `loading-${Date.now()}`;
+            container.innerHTML = `
+                <div class="conversation-block" id="${loadingId}">
+                    <h4>Query: ${query}</h4>
+                    <div class="content">Scanning...</div>
+                </div>
+            `;
 
             try {
-                // --- 2. CONSTRUCT PAYLOAD FOR DUAL-INFERENCE TEST ---
+                const parse = await loadMarked();
                 const payload = {
-                    input: query, 
-                    test_mode: INFERENCE_MODE, 
+                    task: 'generate',
+                    input: query,
+                    model: MODEL
                 };
-
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                
-                // --- 3. DISPLAY RESULTS (Including SOURCE for verification) ---
-                const loadingBlock = document.getElementById(tempLoadingId);
-                if (loadingBlock) loadingBlock.remove();
-                
-                const confidence = data.confidence || 'N/A';
-                const source = data.source || 'UNKNOWN (API Error)';
-
-                let htmlContent = data.answer ? marked.parse(data.answer) : '<p>No results found.</p>';
-
-                const finalBlock = `
+                container.innerHTML = `
                     <div class="conversation-block">
-                        <h4>Inference Result: ${source}</h4>
-                        <div class="content">
-                            <p style="font-weight: 700; color: var(--accent-color);">[CONFIDENCE: ${confidence}%]</p>
-                            ${htmlContent}
-                        </div>
-                    </div>`;
-                resultContainer.innerHTML += finalBlock;
-                resultContainer.scrollTo(0, resultContainer.scrollHeight);
-                showMessage(`Inference Complete via ${source}. Confidence: ${confidence}%`, 4000);
-
-            } catch (err) {
-                console.error("API Error:", err);
-                const loadingBlock = document.getElementById(tempLoadingId);
-                if (loadingBlock) loadingBlock.remove();
-                showMessage(`FATAL API ERROR: Could not reach Truth Engine.`, 5000);
+                        <h4>Result: ${data.model_used} (${data.confidence}%)</h4>
+                        <div class="content">${parse(data.answer)}</div>
+                    </div>
+                `;
+                localHistory.push({ query, answer: data.answer, model: data.model_used, timestamp: Date.now(), confidence: data.confidence });
+                if (localHistory.length > 50) localHistory.shift();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(localHistory));
+                if (document.getElementById('historyPanel').classList.contains('open')) renderHistory();
+                showMessage(`Done: ${data.model_used}`);
+            } catch (e) {
+                container.innerHTML = `<p>Error: ${e.message}</p>`;
+                showMessage('Query failed.');
             }
         }
 
-
-        // Event Listeners (MODIFIED FOR TEST)
+        // Init
         document.addEventListener('DOMContentLoaded', () => {
-            const queryInput = document.getElementById('queryInput');
-            
-            // CRITICAL: New simplified ENTER listener
-            queryInput.addEventListener('keydown', e => {
+            const input = document.getElementById('queryInput');
+            input.addEventListener('keydown', e => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    const query = queryInput.value.trim();
-                    if (query === '') {
-                        showMessage("Please enter a query.", 3000);
-                        return;
-                    }
-                    performTruthQuery(query); // Always execute as a single, new test query
-                    queryInput.value = '';
+                    performTruthQuery(input.value);
+                    input.value = '';
                 }
             });
 
             document.getElementById('close-modal').addEventListener('click', closeModal);
             document.getElementById('modal-overlay').addEventListener('click', e => {
-                if (e.target === document.getElementById('modal-overlay')) closeModal();
+                if (e.target === e.currentTarget) closeModal();
             });
-            document.getElementById('ttsBtn').addEventListener('click', readAnalysisAloud);
-            // All other buttons are disabled or their logic is irrelevant/simplified for this test.
-            
-            // --- ADD TEST CONTROLS UI AND LOGIC ---
-            const modeToggle = document.querySelector('.mode-toggle');
-            if (modeToggle) {
-                modeToggle.innerHTML = ''; // Clear existing buttons
-                
-                const workersBtn = document.createElement('button');
-                workersBtn.textContent = 'TEST: Workers AI (Fast)';
-                workersBtn.onclick = () => { INFERENCE_MODE = 'WORKERS_AI'; showMessage('Test Mode: Workers AI Selected'); };
-                
-                const openRouterBtn = document.createElement('button');
-                openRouterBtn.textContent = 'TEST: OpenRouter (Complex)';
-                openRouterBtn.onclick = () => { INFERENCE_MODE = 'OPEN_ROUTER'; showMessage('Test Mode: OpenRouter Selected'); };
+            document.getElementById('ttsBtn').addEventListener('click', () => {
+                const text = document.getElementById('resultContainer').innerText;
+                speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+                showMessage('Reading...');
+            });
+            document.getElementById('historyToggle').addEventListener('click', toggleHistory);
+            document.getElementById('clearHistory').addEventListener('click', () => {
+                localHistory = [];
+                localStorage.removeItem(STORAGE_KEY);
+                renderHistory();
+                showMessage('History cleared.');
+            });
+            document.getElementById('exportHistory').addEventListener('click', exportHistory);
+            document.getElementById('importHistory').addEventListener('change', importHistory);
 
-                modeToggle.appendChild(workersBtn);
-                modeToggle.appendChild(openRouterBtn);
-            }
+            document.getElementById('copyResult').addEventListener('click', () => {
+                const block = document.querySelector('.conversation-block');
+                if (block) {
+                    const query = block.querySelector('h4').textContent.replace(/^Result: .+?\(/, '(');
+                    const answer = block.querySelector('.content').innerText;
+                    copyToClipboard(`Query: ${query}\nAnswer: ${answer}`);
+                }
+            });
 
-            // Initialization (Simplified)
-            const body = document.body;
-            setMode(body.getAttribute('data-mode'));
-            initializeAudio();
+            document.querySelectorAll('.mode-toggle button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.body.dataset.mode = btn.dataset.mode;
+                    localStorage.setItem('truth-theme', btn.dataset.mode);
+                    showMessage(`Theme: ${btn.dataset.mode}`);
+                });
+            });
+
+            const selector = document.getElementById('modelSelector');
+            selector.value = MODEL;
+            selector.addEventListener('change', e => {
+                MODEL = e.target.value;
+                localStorage.setItem('truth-model', MODEL);
+                showMessage(`Model: ${MODEL}`);
+            });
+
+            document.body.dataset.mode = localStorage.getItem('truth-theme') || 'silvery';
+            document.getElementById('typedText').classList.add('is-typing');
+            setTimeout(() => document.getElementById('typedText').classList.add('is-done'), 4000);
+            renderHistory();
         });
     </script>
-
-    <div class="mode-toggle">
-        </div>
-    <div class="terminal-window">
-        <p class="typed-text" id="typedText">connected. truth-engine ready.</p>
-        <div class="input-row">
-            <div class="command-line">
-                <input type="text" class="search-input" id="queryInput" placeholder="Enter query..." autofocus>
-            </div>
-            <button class="history-toggle" id="historyToggle" style="display: none;">History</button>
-        </div>
-    </div>
-    <div id="historyPanel" style="display: none;">
-        </div>
-    <div class="modal-overlay" id="modal-overlay">
-        <div class="modal-container">
-            <div class="modal-header">
-                <p class="modal-title">DATA STREAM // ai-nspired (TEST)</p>
-                <button class="close-modal" id="close-modal">×</button>
-            </div>
-            <div class="result-container" id="resultContainer"></div>
-            <div class="modal-footer" id="modalFooter">
-                <button id="encryptAndShareBtn" style="display: none;">🔐 Generate Hash</button>
-                <button id="ttsBtn">TTS (Read Aloud)</button>
-                <button id="followUpBtn" style="display: none;">Follow-Up</button>
-            </div>
-        </div>
-    </div>
-    <div id="melodyLockOutputModal" class="modal-overlay">...</div>
-    <div id="melodyLockInputModal" class="modal-overlay">...</div>
-    <div id="clearConfirmModal" class="modal-overlay">...</div>
-    <div id="customMessage"></div>
 </body>
 </html>
