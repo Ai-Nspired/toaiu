@@ -442,7 +442,7 @@
             <option value="gemini-flash-1.5">Gemini Flash 1.5 (Cheap)</option>
             <option value="llama-3.2-1b">Llama 3.2 1B (Cheap, 131K)</option>
             <option value="mistral-nemo">Mistral Nemo (Easter Egg)</option>
-            <option value="qwen2.5-7b-instruct">Qwen 2.5 7B (Easter Egg)</option>
+            <option value="qwen2.5-7b-instruct">Qwen 2.5 7B (Easter Egg)</section>
             <option value="gpt-oss-20b">GPT OSS 20B (Easter Egg)</option>
         </select>
     </div>
@@ -478,7 +478,7 @@
                 <button class="close-modal" id="close-modal" aria-label="Close modal">×</button>
             </div>
             <div class="result-container" id="resultContainer" role="log" aria-live="polite"></div>
-            <div classs="modal-footer">
+            <div class="modal-footer">
                 <button id="newChat" aria-label="New chat">New Chat</button>
                 <button id="copyResult" aria-label="Copy result">Copy Last</button>
                 <button id="ttsBtn" aria-label="Read aloud">Read Last</button>
@@ -496,9 +496,7 @@
     </div>
 
     <script>
-        // ---!! THIS IS THE FIX !!---
-        // This MUST be the full URL. A relative path '/' will fail when
-        // you open the HTML from your local filesystem (file:///...)
+        // This MUST be the full URL.
         const API_URL = 'https://truthengine.ai-n.workers.dev/';
         
         const STORAGE_KEY = 'LOCAL_TRUTH_HISTORY';
@@ -893,6 +891,32 @@
                     }, 3500);
                 }
             }, 100);
+
+            // ---!! F---ING URL PARAMETER CATCHER !!---
+            // This is the new code you asked for.
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const queryFromUrl = urlParams.get('q');
+                if (queryFromUrl) {
+                    // We have a query.
+                    // 1. Decode it (handles 'what+is+truth')
+                    const decodedQuery = decodeURIComponent(queryFromUrl);
+                    
+                    // 2. Put it in the search bar so the user sees it.
+                    const queryInput = document.getElementById('queryInput');
+                    if(queryInput) queryInput.value = decodedQuery;
+                    
+                    // 3. Run the query.
+                    performTruthQuery(decodedQuery);
+                    
+                    // 4. Clean the URL (so a refresh doesn't re-run it).
+                    history.replaceState(null, '', window.location.pathname);
+                }
+            } catch (e) {
+                console.error("Error parsing URL query:", e);
+            }
+            // ---!! F---ING END OF NEW CODE !!---
+            
         });
     </script>
 </body>
