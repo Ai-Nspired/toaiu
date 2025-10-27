@@ -184,12 +184,25 @@
             transition: background-color 0.3s, color 0.3s;
             scroll-behavior: smooth;
         }
+        .conversation-block {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .conversation-block:last-child {
+            border-bottom: none;
+        }
+        .conversation-block h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--accent-color);
+        }
         .conversation-block .content {
             box-shadow: 0 4px 10px var(--shadow-color);
             margin-top: 1rem;
             padding: 1rem;
             border-radius: 4px;
             transition: box-shadow 0.3s;
+            background-color: var(--content-bg);
         }
         [data-mode="neo"] .conversation-block .content {
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
@@ -273,7 +286,10 @@
             gap: 0.5rem;
             flex-wrap: wrap;
         }
-        .history-actions button, .history-actions input {
+        .history-actions input[type="file"] {
+            display: none; /* Hide the default file input */
+        }
+        .history-actions button, .history-actions .file-upload-btn {
             background: none;
             border: 1px solid var(--accent-color);
             color: var(--accent-color);
@@ -282,8 +298,10 @@
             cursor: pointer;
             border-radius: 4px;
             min-width: 60px;
+            display: inline-block;
+            text-align: center;
         }
-        .history-actions button:hover, .history-actions input:hover {
+        .history-actions button:hover, .history-actions .file-upload-btn:hover {
             background-color: var(--accent-color);
             color: var(--bg-color);
         }
@@ -366,6 +384,48 @@
             opacity: 1;
             transform: translate(-50%, -10px);
         }
+        #exportPrompt {
+            display: none;
+            position: fixed;
+            bottom: 4rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-color);
+            color: var(--bg-color);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            font-weight: 700;
+            font-size: 0.9rem;
+            max-width: 90vw;
+            text-align: center;
+        }
+        #exportPrompt button {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--bg-color);
+            background: var(--bg-color);
+            color: var(--accent-color);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        #exportPrompt button:hover {
+            background: var(--modal-bg);
+        }
+        #exportPrompt.visible {
+            display: block;
+        }
+        .disclaimer {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--secondary-text);
+            font-size: 0.8rem;
+            text-align: center;
+            max-width: 90vw;
+        }
     </style>
 </head>
 <body data-mode="silvery">
@@ -374,10 +434,16 @@
         <button data-mode="dark">Dark</button>
         <button data-mode="neo">Neo</button>
         <select id="modelSelector" aria-label="Select AI Model">
-            <option value="WORKERS_AI">Workers AI (Free, 8K)</option>
-            <option value="dolphin-mistral-24b-venice-edition:free">Dolphin Mistral Venice (Free, 32K)</option>
-            <option value="openai/gpt-oss-20b">GPT OSS 20B ($0.085/M, 131K)</option>
-            <option value="deepseek/deepseek-r1-0528-qwen3-8b">DeepSeek R1 Qwen3 8B ($0.21/M, 128K)</option>
+            <option value="WORKERS_AI">Workers AI (Free)</option>
+            <option value="dolphin-mistral-24b-venice-edition">Dolphin 24B (Free, 32K)</option>
+            <option value="llama-3-8b">Llama 3 8B (Free)</option>
+            <option value="gemma-7b">Gemma 7B (Free)</option>
+            <option value="mistral-7b">Mistral 7B (Free)</option>
+            <option value="gemini-flash-1.5">Gemini Flash 1.5 (Cheap)</option>
+            <option value="llama-3.2-1b">Llama 3.2 1B (Cheap, 131K)</option>
+            <option value="mistral-nemo">Mistral Nemo (Easter Egg)</option>
+            <option value="qwen2.5-7b-instruct">Qwen 2.5 7B (Easter Egg)</option>
+            <option value="gpt-oss-20b">GPT OSS 20B (Easter Egg)</option>
         </select>
     </div>
 
@@ -395,9 +461,10 @@
         <div class="history-header">
             <p>History</p>
             <div class="history-actions">
-                <button id="exportHistory" aria-label="Export history">Export</button>
+                <button id="exportHistory" aria-label="Export history" style="display: inline-block;">Export</button>
+                <button id="importTrigger" class="file-upload-btn" aria-label="Import history" style="display: inline-block;">Import</button>
                 <input type="file" id="importHistory" accept=".json" aria-label="Import history">
-                <button id="clearHistory" aria-label="Clear history">Clear</button>
+                <button id="clearHistory" aria-label="Clear history" style="display: inline-block;">Clear</button>
             </div>
             <button class="close-history" id="closeHistory" aria-label="Close history">×</button>
         </div>
@@ -411,79 +478,171 @@
                 <button class="close-modal" id="close-modal" aria-label="Close modal">×</button>
             </div>
             <div class="result-container" id="resultContainer" role="log" aria-live="polite"></div>
-            <div class="modal-footer">
-                <button id="copyResult" aria-label="Copy result">Copy</button>
-                <button id="ttsBtn" aria-label="Read aloud">TTS</button>
+            <div classs="modal-footer">
+                <button id="newChat" aria-label="New chat">New Chat</button>
+                <button id="copyResult" aria-label="Copy result">Copy Last</button>
+                <button id="ttsBtn" aria-label="Read aloud">Read Last</button>
             </div>
         </div>
     </div>
 
     <div id="customMessage"></div>
+    <div id="exportPrompt">
+        Your shit’s gonna self-destruct in 2 hours—export now to keep your context free!
+        <button id="exportPromptBtn" aria-label="Export conversation">Export Now</button>
+    </div>
+    <div class="disclaimer">
+        Free tier uses shared conversation history. Export to save your context. By using this system, you agree to our terms of service.
+    </div>
 
     <script>
+        // ---!! THIS IS THE FIX !!---
+        // This MUST be the full URL. A relative path '/' will fail when
+        // you open the HTML from your local filesystem (file:///...)
         const API_URL = 'https://truthengine.ai-n.workers.dev/';
+        
         const STORAGE_KEY = 'LOCAL_TRUTH_HISTORY';
         let localHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-        let MODEL = localStorage.getItem('truth-model') || 'dolphin3.0-mistral-24b:free';
+        let MODEL = localStorage.getItem('truth-model') || 'gemini-flash';
+        let parse = (text) => text.replace(/</g, "&lt;").replace(/>/g, "&gt;"); // Fallback parser
 
-        // Utils
+        // --- Utils ---
         function showMessage(msg, duration = 3000) {
             const el = document.getElementById('customMessage');
+            if (!el) return;
             el.textContent = msg;
             el.classList.add('visible');
             setTimeout(() => el.classList.remove('visible'), duration);
         }
 
+        function showExportPrompt() {
+            const prompt = document.getElementById('exportPrompt');
+            if (prompt) prompt.classList.add('visible');
+            setTimeout(() => {
+                if (prompt) prompt.classList.remove('visible');
+            }, 5000);
+        }
+
         async function loadMarked() {
+            if (window.marked) {
+                parse = window.marked.parse;
+                return;
+            }
             try {
                 const script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
                 document.head.appendChild(script);
-                return new Promise(resolve => {
-                    script.onload = () => resolve(window.marked.parse);
-                });
-            } catch {
-                return text => text; // Fallback plain text
+                script.onload = () => {
+                    if (window.marked) {
+                        parse = window.marked.parse;
+                        console.log('Marked.js loaded.');
+                    }
+                };
+            } catch(e) {
+                console.error('Failed to load Marked.js', e);
             }
         }
 
         function copyToClipboard(text, msg = 'Copied!') {
-            navigator.clipboard.writeText(text).then(() => showMessage(msg));
+            if (!navigator.clipboard) {
+                showMessage('Clipboard API not available.');
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => showMessage(msg)).catch(err => showMessage('Failed to copy.'));
         }
 
-        // Modal/History
+        async function promptForPassphrase(challengeQuestion) {
+            return new Promise((resolve) => {
+                const passphrase = prompt(challengeQuestion || 'What is the passphrase?');
+                resolve(passphrase || '');
+            });
+        }
+        
+        function sanitizeQuery(query) {
+             // Basic sanitization to prevent weirdness, but allow Marked to render
+            return query.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+        
+        function scrollToBottom() {
+            const container = document.getElementById('resultContainer');
+            if(container) container.scrollTop = container.scrollHeight;
+        }
+
+        // --- Modal/History ---
         function openModal() {
             document.getElementById('modal-overlay').classList.add('active');
         }
 
         function closeModal() {
             document.getElementById('modal-overlay').classList.remove('active');
-            speechSynthesis.cancel();
+            if (speechSynthesis.speaking) speechSynthesis.cancel();
+            if (localHistory.length > 0) showExportPrompt();
         }
 
         function toggleHistory() {
             const panel = document.getElementById('historyPanel');
+            if (!panel) return;
             panel.classList.toggle('open');
-            if (panel.classList.contains('open')) renderHistory();
+            if (panel.classList.contains('open')) fetchHistory();
+        }
+
+        async function fetchHistory() {
+            try {
+                const res = await fetch(`${API_URL}conversation/history`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const history = await res.json();
+                
+                if (!Array.isArray(history)) {
+                    console.error("Fetched history is not an array:", history);
+                    localHistory = [];
+                } else {
+                    localHistory = history;
+                }
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(localHistory));
+                renderHistory();
+            } catch (error) {
+                showMessage(`Failed to fetch history: ${error.message}`);
+                console.error("fetchHistory error:", error);
+                renderHistory(); // Fallback to local storage
+            }
         }
 
         function renderHistory() {
             const list = document.getElementById('historyList');
-            list.innerHTML = localHistory.slice(-20).reverse().map(item => `
-                <li class="history-item" role="button" tabindex="0" data-query="${item.query.replace(/"/g, '&quot;')}">
+            if (!list) return;
+            
+            if (!Array.isArray(localHistory)) {
+                console.error("localHistory is not an array:", localHistory);
+                localHistory = []; // Fix it
+            }
+            
+            list.innerHTML = localHistory.slice(-20).reverse().map(item => {
+                const query = item.query || "Empty Query";
+                const safeQuery = query.replace(/"/g, '&quot;');
+                const shortQuery = query.slice(0, 50) + (query.length > 50 ? '...' : '');
+                
+                return `
+                <li class="history-item" role="button" tabindex="0" data-query="${safeQuery}">
                     <div class="history-item-content">
-                        <p>${item.query.slice(0, 50)}${item.query.length > 50 ? '...' : ''}</p>
-                        <small>${item.model} • ${new Date(item.timestamp).toLocaleString()}</small>
+                        <p>${shortQuery}</p>
+                        <small>${item.model || 'unknown'} • ${item.timestamp ? new Date(item.timestamp).toLocaleString() : 'no date'}</small>
                     </div>
                     <button class="copy-btn" aria-label="Copy query and answer">📋</button>
                 </li>
-            `).join('');
+            `}).join('');
+            
             document.querySelectorAll('.history-item').forEach(item => {
                 item.addEventListener('click', e => {
+                    const query = item.dataset.query;
                     if (e.target.classList.contains('copy-btn')) {
-                        copyToClipboard(`Query: ${item.dataset.query}\nAnswer: ${localHistory.find(h => h.query === item.dataset.query).answer}`);
+                        const historyItem = localHistory.find(h => h.query === query);
+                        copyToClipboard(`Query: ${query}\nAnswer: ${historyItem ? historyItem.answer : 'Not found.'}`);
                     } else {
-                        performTruthQuery(item.dataset.query);
+                        performTruthQuery(query);
                     }
                 });
                 item.addEventListener('keydown', e => {
@@ -492,139 +651,251 @@
             });
         }
 
-        function exportHistory() {
-            const blob = new Blob([JSON.stringify(localHistory, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'history.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            showMessage('History exported.');
+        async function exportHistory() {
+            try {
+                const res = await fetch(`${API_URL}conversation/export`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'conversation.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showMessage('History exported. Save it to continue later!');
+            } catch (error) {
+                showMessage('Failed to export history.');
+            }
         }
 
-        function importHistory(e) {
+        async function importHistory(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = () => {
+            reader.onload = async () => {
                 try {
                     const imported = JSON.parse(reader.result);
-                    localHistory = [...new Set([...localHistory, ...imported].map(JSON.stringify))].map(JSON.parse);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(localHistory));
-                    renderHistory();
-                    showMessage('History imported.');
-                } catch {
-                    showMessage('Invalid JSON.');
+                    if (!imported || !Array.isArray(imported.history)) {
+                        throw new Error("Invalid file format. Expected { history: [...] }");
+                    }
+                    const res = await fetch(`${API_URL}conversation/import`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(imported)
+                    });
+                    if (!res.ok) {
+                         const err = await res.json();
+                         throw new Error(err.error || `HTTP ${res.status}`);
+                    }
+                    const data = await res.json();
+                    if (data.success) {
+                        localHistory = imported.history;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(localHistory));
+                        await fetchHistory();
+                        showMessage('History imported. Context restored!');
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    showMessage(`Import failed: ${error.message}`);
                 }
             };
             reader.readAsText(file);
         }
+        
+        async function clearHistory() {
+            try {
+                const res = await fetch(`${API_URL}conversation/import`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ history: [] })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                localHistory = [];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(localHistory));
+                renderHistory();
+                showMessage('History cleared.');
+                
+                // Also clear the modal
+                const container = document.getElementById('resultContainer');
+                if (container) container.innerHTML = "";
+                
+            } catch (error) {
+                showMessage('Failed to clear history.');
+            }
+        }
 
-        // Query
-        async function performTruthQuery(query) {
-            if (!query.trim()) return showMessage('Enter a query.');
+        // --- Query ---
+        async function performTruthQuery(query, challengeResponse = '') {
+            if (!query || !query.trim()) return showMessage('Enter a query.');
+            
+            const sanitizedQuery = sanitizeQuery(query);
             openModal();
             const container = document.getElementById('resultContainer');
+            if (!container) return;
+            
+            // Add query to chat
+            const queryBlock = document.createElement('div');
+            queryBlock.className = 'conversation-block';
+            queryBlock.innerHTML = `<h4>Query: ${sanitizedQuery}</h4>`;
+            container.appendChild(queryBlock);
+            
+            // Add placeholder for answer
             const loadingId = `loading-${Date.now()}`;
-            container.innerHTML = `
-                <div class="conversation-block" id="${loadingId}">
-                    <h4>Query: ${query}</h4>
-                    <div class="content">Scanning...</div>
-                </div>
-            `;
+            const answerBlock = document.createElement('div');
+            answerBlock.className = 'content';
+            answerBlock.id = loadingId;
+            answerBlock.innerHTML = 'Scanning...';
+            queryBlock.appendChild(answerBlock);
+
+            scrollToBottom();
 
             try {
-                const parse = await loadMarked();
                 const payload = {
-                    task: 'generate',
                     input: query,
-                    model: MODEL
+                    model: MODEL,
+                    challengeResponse: challengeResponse
                 };
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                container.innerHTML = `
-                    <div class="conversation-block">
-                        <h4>Result: ${data.model_used} (${data.confidence}%)</h4>
-                        <div class="content">${parse(data.answer)}</div>
-                    </div>
-                `;
-                localHistory.push({ query, answer: data.answer, model: data.model_used, timestamp: Date.now(), confidence: data.confidence });
-                if (localHistory.length > 50) localHistory.shift();
+                
+                const answerContainer = document.getElementById(loadingId);
+                if (!answerContainer) return;
+
+                if (!res.ok) {
+                    if (data.error === 'CHALLENGE_REQUIRED') {
+                        // Remove the placeholder blocks
+                        queryBlock.remove(); 
+                        const passphrase = await promptForPassphrase(data.challengeQuestion);
+                        return performTruthQuery(query, passphrase); // Re-run query
+                    }
+                    throw new Error(data.error || `HTTP ${res.status}`);
+                }
+                
+                // Success
+                answerContainer.innerHTML = parse(data.answer);
+                
+                const meta = document.createElement('small');
+                meta.textContent = `Model: ${data.model} • ${new Date(data.timestamp).toLocaleString()}`;
+                if(data.cached) {
+                    meta.textContent += " (Cached)";
+                    meta.style.color = "var(--accent-color)";
+                    meta.style.fontWeight = "bold";
+                }
+                queryBlock.appendChild(meta);
+
+
+                localHistory.push({ query, answer: data.answer, model: data.model, timestamp: data.timestamp });
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(localHistory));
-                if (document.getElementById('historyPanel').classList.contains('open')) renderHistory();
-                showMessage(`Done: ${data.model_used}`);
-            } catch (e) {
-                container.innerHTML = `<p>Error: ${e.message}</p>`;
-                showMessage('Query failed.');
+                // No need to fetchHistory(), just render
+                renderHistory(); 
+
+            } catch (error) {
+                const answerContainer = document.getElementById(loadingId);
+                if (answerContainer) {
+                    answerContainer.innerHTML = `Error: ${error.message}`;
+                } else {
+                    queryBlock.innerHTML += `<div class="content">Error: ${error.message}</div>`;
+                }
             }
+            
+            scrollToBottom();
         }
 
-        // Init
+        // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
-            const input = document.getElementById('queryInput');
-            input.addEventListener('keydown', e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    performTruthQuery(input.value);
-                    input.value = '';
+            loadMarked(); // Load markdown parser
+        
+            document.getElementById('queryInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    performTruthQuery(e.target.value);
+                    e.target.value = ""; // Clear input after send
                 }
             });
-
-            document.getElementById('close-modal').addEventListener('click', closeModal);
-            document.getElementById('modal-overlay').addEventListener('click', e => {
-                if (e.target === e.currentTarget) closeModal();
-            });
-            document.getElementById('ttsBtn').addEventListener('click', () => {
-                const text = document.getElementById('resultContainer').innerText;
-                speechSynthesis.speak(new SpeechSynthesisUtterance(text));
-                showMessage('Reading...');
-            });
+            
             document.getElementById('historyToggle').addEventListener('click', toggleHistory);
-            document.getElementById('clearHistory').addEventListener('click', () => {
-                localHistory = [];
-                localStorage.removeItem(STORAGE_KEY);
-                renderHistory();
-                showMessage('History cleared.');
-            });
-            document.getElementById('exportHistory').addEventListener('click', exportHistory);
-            document.getElementById('importHistory').addEventListener('change', importHistory);
-
+            document.getElementById('closeHistory').addEventListener('click', toggleHistory);
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            
             document.getElementById('copyResult').addEventListener('click', () => {
-                const block = document.querySelector('.conversation-block');
-                if (block) {
-                    const query = block.querySelector('h4').textContent.replace(/^Result: .+?\(/, '(');
-                    const answer = block.querySelector('.content').innerText;
-                    copyToClipboard(`Query: ${query}\nAnswer: ${answer}`);
+                const lastContent = document.querySelector('.conversation-block:last-child .content');
+                if (lastContent) {
+                    copyToClipboard(lastContent.textContent);
+                } else {
+                    showMessage('No result to copy.');
                 }
             });
-
+            
+            document.getElementById('ttsBtn').addEventListener('click', () => {
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+                    return;
+                }
+                const lastContent = document.querySelector('.conversation-block:last-child .content');
+                if (lastContent && lastContent.textContent) {
+                    const utterance = new SpeechSynthesisUtterance(lastContent.textContent);
+                    speechSynthesis.speak(utterance);
+                } else {
+                    showMessage('No result to read.');
+                }
+            });
+            
+            document.getElementById('newChat').addEventListener('click', () => {
+                clearHistory(); // This clears the DO and the modal
+                showMessage('New chat started.');
+            });
+            
+            document.getElementById('exportHistory').addEventListener('click', exportHistory);
+            document.getElementById('importTrigger').addEventListener('click', () => {
+                document.getElementById('importHistory').click(); // Trigger hidden file input
+            });
+            document.getElementById('importHistory').addEventListener('change', importHistory);
+            document.getElementById('clearHistory').addEventListener('click', clearHistory);
+            
+            document.getElementById('modelSelector').addEventListener('change', (e) => {
+                MODEL = e.target.value;
+                localStorage.setItem('truth-model', MODEL);
+                showMessage(`Model set to ${e.target.options[e.target.selectedIndex].text}`);
+            });
+            
             document.querySelectorAll('.mode-toggle button').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.body.dataset.mode = btn.dataset.mode;
-                    localStorage.setItem('truth-theme', btn.dataset.mode);
-                    showMessage(`Theme: ${btn.dataset.mode}`);
+                    localStorage.setItem('theme', btn.dataset.mode);
                 });
             });
+            
+            document.getElementById('exportPromptBtn').addEventListener('click', exportHistory);
 
-            const selector = document.getElementById('modelSelector');
-            selector.value = MODEL;
-            selector.addEventListener('change', e => {
-                MODEL = e.target.value;
-                localStorage.setItem('truth-model', MODEL);
-                showMessage(`Model: ${MODEL}`);
-            });
-
-            document.body.dataset.mode = localStorage.getItem('truth-theme') || 'silvery';
-            document.getElementById('typedText').classList.add('is-typing');
-            setTimeout(() => document.getElementById('typedText').classList.add('is-done'), 4000);
-            renderHistory();
+            // --- Initialize ---
+            document.body.dataset.mode = localStorage.getItem('theme') || 'silvery';
+            document.getElementById('modelSelector').value = MODEL;
+            
+            // Fetch history *after* DOM is loaded
+            fetchHistory(); 
+            
+            setTimeout(() => {
+                const typedText = document.getElementById('typedText');
+                if (typedText) {
+                    typedText.classList.add('is-typing');
+                    setTimeout(() => {
+                        typedText.classList.remove('is-typing');
+                        typedText.classList.add('is-done');
+                    }, 3500);
+                }
+            }, 100);
         });
     </script>
 </body>
 </html>
+
+
