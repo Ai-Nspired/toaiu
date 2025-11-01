@@ -631,6 +631,7 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 0.5rem;
+            position: relative;
         }
         .history-item:hover {
             background-color: rgba(var(--accent-color-rgb), 0.1);
@@ -652,7 +653,7 @@
             display: block;
             margin-top: 2px;
         }
-        .copy-btn {
+        .menu-btn {
             background: none;
             border: none;
             color: var(--secondary-text);
@@ -661,7 +662,34 @@
             font-size: 1rem;
             line-height: 1;
         }
-        .copy-btn:hover { color: var(--accent-color); }
+        .menu-btn:hover { color: var(--accent-color); }
+        .item-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: var(--modal-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+            display: none;
+        }
+        .item-menu.active {
+            display: block;
+        }
+        .item-menu button {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            text-align: left;
+            cursor: pointer;
+        }
+        .item-menu button:hover {
+            background: rgba(var(--accent-color-rgb), 0.1);
+        }
 
         #customMessage {
             position: fixed;
@@ -727,6 +755,43 @@
             font-size: 0.8rem;
             text-align: center;
             max-width: 90vw;
+        }
+        .edit-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .edit-form input, .edit-form textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: var(--content-bg);
+            color: var(--content-text);
+            font-family: 'Crimson Pro', serif;
+            border-radius: 4px;
+        }
+        .edit-form textarea {
+            min-height: 100px;
+        }
+        .edit-form button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--accent-color);
+            background: none;
+            color: var(--accent-color);
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        .edit-form button:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+        }
+        .edit-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--content-bg);
         }
     </style>
 </head>
@@ -826,6 +891,23 @@
         </div>
     </div>
 
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="edit-modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <p class="modal-title">Edit Conversation</p>
+                <button class="close-modal" id="close-edit-modal">×</button>
+            </div>
+            <div class="result-container edit-form" id="editContainer">
+                <label>Title: <input id="editTitle" type="text" placeholder="Optional title"></label>
+                <label>Query: <textarea id="editQuery" rows="5"></textarea></label>
+                <label>Answer: <textarea id="editAnswer" rows="10"></textarea></label>
+                <div class="edit-preview" id="editPreview">Preview will appear here...</div>
+                <button id="saveEdit">Save</button>
+            </div>
+        </div>
+    </div>
+
     <div id="customMessage"></div>
     <div id="exportPrompt">
         Your conversation context will reset in 2 hours—export to preserve your history!
@@ -841,20 +923,22 @@
         // Storage Keys - LOCAL is primary
         const LOCAL_HISTORY_KEY = 'TRUTH_ENGINE_LOCAL_HISTORY';
         const REMOTE_HISTORY_KEY = 'TRUTH_ENGINE_REMOTE_SYNC';
-        const CURRENT_SESSION_KEY = 'TRUTH_ENGINE_CURRENT_SESSION';
         
         // State management
         let localHistory = JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY)) || [];
         let remoteHistory = JSON.parse(localStorage.getItem(REMOTE_HISTORY_KEY)) || [];
-        let currentSession = JSON.parse(localStorage.getItem(CURRENT_SESSION_KEY)) || [];
         let MODEL = localStorage.getItem('truth-model') || 'WORKERS_AI';
         let isChallenging = false;
         let ttsUtterance = null;
         let isTtsPlaying = false;
+        let editingEntry = null;
 
         // ==================== LOCAL STORAGE MANAGEMENT ====================
         
         function saveToLocalHistory(query, answer, model) {
+            if (localHistory.some(e => e.query === query && e.answer === answer)) {
+                return; // Avoid duplicates
+            }
             const entry = {
                 id: Date.now().toString(),
                 query: query,
@@ -943,30 +1027,18 @@
             });
         }
 
+        function deleteFromLocalHistory(id) {
+            localHistory = localHistory.filter(entry => entry.id !== id);
+            localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(localHistory));
+            renderCombinedHistory();
+            showMessage('Conversation deleted');
+        }
+
         // ==================== SESSION MANAGEMENT ====================
         
-        function addToCurrentSession(query, answer, model) {
-            const sessionEntry = {
-                query: query,
-                answer: answer,
-                model: model,
-                timestamp: Math.floor(Date.now() / 1000)
-            };
-            
-            currentSession.unshift(sessionEntry);
-            localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify(currentSession));
-            return sessionEntry;
-        }
-
-        function clearCurrentSession() {
-            currentSession = [];
-            localStorage.setItem(CURRENT_SESSION_KEY, '[]');
-            return true;
-        }
-
         function getSessionContext() {
             // Return last 5 interactions for context
-            return currentSession.slice(0, 5).reverse().map(entry => 
+            return localHistory.slice(0, 5).reverse().map(entry => 
                 `User: ${entry.query}\nAI: ${entry.answer}`
             ).join('\n\n');
         }
@@ -1017,7 +1089,7 @@
             document.getElementById('modal-overlay').classList.remove('active');
             stopTts();
             closeTtsMiniModal();
-            if (currentSession.length > 0) showExportPrompt();
+            if (localHistory.length > 0) showExportPrompt();
         }
 
         function toggleHistory() {
@@ -1028,39 +1100,103 @@
 
         function renderCombinedHistory() {
             const list = document.getElementById('historyList');
-            const allHistory = [...currentSession, ...localHistory.slice(0, 50)];
+            const allHistory = localHistory.slice(0, 50);
             
             list.innerHTML = allHistory.map(item => {
                 const query = (item.query || '').trim();
-                const display = query.slice(0, 60) + (query.length > 60 ? '...' : '');
-                const isCurrent = currentSession.includes(item);
+                const title = (item.title || '').trim();
+                const display = (title || query).slice(0, 60) + ((title || query).length > 60 ? '...' : '');
                 
                 return `
-                <li class="history-item" data-query="${query.replace(/"/g, '&quot;')}" data-answer="${(item.answer || '').replace(/"/g, '&quot;')}">
+                <li class="history-item" data-id="${item.id}">
                     <div class="history-item-content">
                         <p>${display || 'Empty'}</p>
                         <small>${item.model || 'unknown'} • ${new Date(item.timestamp * 1000).toLocaleString()}</small>
-                        ${isCurrent ? '<br><small><em>(Current Session)</em></small>' : ''}
                     </div>
-                    <button class="copy-btn" title="Copy conversation">Copy</button>
+                    <button class="menu-btn" title="Options">⋯</button>
+                    <div class="item-menu">
+                        <button class="copy-option">Copy</button>
+                        <button class="edit-option">Edit</button>
+                        <button class="delete-option">Delete</button>
+                    </div>
                 </li>`;
             }).join('');
 
             // Add event listeners
             document.querySelectorAll('.history-item').forEach(item => {
-                const query = item.dataset.query;
-                const answer = item.dataset.answer;
-                
-                item.addEventListener('click', e => {
-                    if (e.target.classList.contains('copy-btn')) {
-                        copyToClipboard(`Q: ${query}\nA: ${answer || ''}`);
-                    } else if (query) {
-                        document.getElementById('queryInput').value = query;
-                        document.getElementById('queryInput').focus();
-                        toggleHistory();
+                const id = item.dataset.id;
+                const entry = localHistory.find(ent => ent.id === id);
+                if (!entry) return;
+
+                const menuBtn = item.querySelector('.menu-btn');
+                const menu = item.querySelector('.item-menu');
+
+                menuBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    menu.classList.toggle('active');
+                });
+
+                item.querySelector('.copy-option').addEventListener('click', () => {
+                    copyToClipboard(`Q: ${entry.query}\nA: ${entry.answer || ''}`);
+                    menu.classList.remove('active');
+                });
+
+                item.querySelector('.edit-option').addEventListener('click', () => {
+                    openEditModal(entry);
+                    menu.classList.remove('active');
+                });
+
+                item.querySelector('.delete-option').addEventListener('click', () => {
+                    if (confirm('Delete this conversation?')) {
+                        deleteFromLocalHistory(id);
+                    }
+                    menu.classList.remove('active');
+                });
+
+                // Close menu if clicking outside
+                document.addEventListener('click', e => {
+                    if (!item.contains(e.target)) {
+                        menu.classList.remove('active');
                     }
                 });
+
+                item.addEventListener('click', async e => {
+                    if (e.target.closest('.menu-btn, .item-menu')) return; // Ignore if clicking menu
+
+                    // Load full conversation without re-query
+                    const parse = await loadMarked();
+                    const container = document.getElementById('resultContainer');
+                    const displayTitle = entry.title ? `<h3>${entry.title}</h3>` : '';
+                    container.innerHTML = `
+                        <div class="conversation-block">
+                            ${displayTitle}
+                            <h4>Query: ${entry.query}</h4>
+                            <div class="content">${parse(entry.answer)}</div>
+                            <small>Model: ${entry.model} • ${new Date(entry.timestamp * 1000).toLocaleString()}</small>
+                        </div>`;
+                    openModal();
+                    toggleHistory();
+                });
             });
+        }
+
+        function openEditModal(entry) {
+            editingEntry = entry;
+            document.getElementById('editTitle').value = entry.title || '';
+            document.getElementById('editQuery').value = entry.query || '';
+            document.getElementById('editAnswer').value = entry.answer || '';
+            updateEditPreview(entry.answer || '');
+            document.getElementById('edit-modal-overlay').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal-overlay').classList.remove('active');
+            editingEntry = null;
+        }
+
+        async function updateEditPreview(text) {
+            const parse = await loadMarked();
+            document.getElementById('editPreview').innerHTML = parse(text);
         }
 
         // ==================== TTS FUNCTIONS ====================
@@ -1197,9 +1333,8 @@
                     throw new Error(data.error || 'Unknown error');
                 }
 
-                // SUCCESS: Save to both local storage and current session
+                // SUCCESS: Save to local storage
                 saveToLocalHistory(query, data.answer, MODEL);
-                addToCurrentSession(query, data.answer, MODEL);
 
                 container.innerHTML = `
                     <div class="conversation-block">
@@ -1226,15 +1361,12 @@
             try {
                 const res = await fetch(`${API_URL}/conversation/new`, { method: 'POST' });
                 if (res.ok) {
-                    clearCurrentSession();
                     showMessage('New chat started. Remote context cleared.');
                     renderCombinedHistory();
                 } else {
                     throw new Error(`HTTP ${res.status}`);
                 }
             } catch (err) {
-                // Fallback: clear session locally anyway
-                clearCurrentSession();
                 showMessage('New chat started (local only). Remote clear failed.');
                 renderCombinedHistory();
             }
@@ -1354,6 +1486,24 @@
             exportLocalHistory();
         });
 
+        // Edit Modal Listeners
+        document.getElementById('close-edit-modal').addEventListener('click', closeEditModal);
+        document.getElementById('saveEdit').addEventListener('click', () => {
+            if (editingEntry) {
+                editingEntry.title = document.getElementById('editTitle').value.trim() || undefined;
+                editingEntry.query = document.getElementById('editQuery').value.trim();
+                editingEntry.answer = document.getElementById('editAnswer').value.trim();
+                localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(localHistory));
+                closeEditModal();
+                renderCombinedHistory();
+                showMessage('Conversation updated');
+            }
+        });
+
+        document.getElementById('editAnswer').addEventListener('input', (e) => {
+            updateEditPreview(e.target.value);
+        });
+
         // ==================== INITIALIZATION ====================
 
         function initializeApp() {
@@ -1387,7 +1537,7 @@
             }, 100);
 
             // Show stats
-            console.log(`Truth Engine Ready - Local: ${localHistory.length} conversations, Session: ${currentSession.length} messages`);
+            console.log(`Truth Engine Ready - Local: ${localHistory.length} conversations`);
         }
 
         // Start the app
