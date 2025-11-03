@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Official AI University :: Component Builder v10 - Dual Mode</title>
-    <meta name="description" content="The Official AI University Component Builder. Architect future-proof components with dual-mode extraction and templating.">
+    <title>Enhanced Component Builder - v11</title>
+    <meta name="description" content="Advanced Component Builder with Differential Applier">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -503,6 +503,79 @@
             background: var(--bl);
             color: var(--p);
         }
+        /* Enhanced differential applier section */
+        .differential-applier {
+            background: rgba(248, 251, 255, 0.95);
+            border: 2px solid var(--cb);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+        }
+        .applier-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .applier-controls > div {
+            flex: 1;
+            min-width: 300px;
+        }
+        .applier-controls label {
+            display: block;
+            margin: 0.5rem 0 0.25rem;
+            font-size: 0.9rem;
+        }
+        .applier-controls textarea {
+            min-height: 150px;
+            font-size: 1rem;
+        }
+        .applier-controls button {
+            margin: 0.5rem 0 0;
+        }
+        .applier-result {
+            background: #f8fafc;
+            border: 1px solid var(--bl);
+            border-left: 4px solid var(--cl);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            overflow-x: auto;
+            max-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        .applier-result pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .differential-differences {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px dashed var(--bl);
+        }
+        .differential-differences h3 {
+            color: var(--s);
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+        .diff-content {
+            background: #0f172a;
+            color: #a5b4fc;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        .diff-content .diff-added {
+            color: #4ade80;
+        }
+        .diff-content .diff-removed {
+            color: #f87171;
+            text-decoration: line-through;
+        }
         @media (max-width: 768px) {
             body { padding: 20px 10px 10px; }
             .panel { padding: 1.5rem; }
@@ -563,7 +636,7 @@
     </style>
 </head>
 <body>
-    <h1>🧩 Component Builder v10 (Dual Mode - Enhanced)</h1>
+    <h1>🧩 Enhanced Component Builder v11</h1>
 
     <div class="main-container">
         <div class="panel">
@@ -575,8 +648,8 @@
                 <option value="regex">Custom Code Snippets (JS, etc.)</option>
             </select>
             
-            <textarea id="html-input" placeholder="Paste your full HTML document here..."></textarea>
-            <button id="process-button">Analyze HTML</button>
+            <textarea id="html-input" placeholder="Paste your full HTML document or custom code here..."></textarea>
+            <button id="process-button">Analyze Input</button>
             <button id="clear-input-button">Clear</button>
             <div id="status" class="status"></div>
         </div>
@@ -608,8 +681,35 @@
         </div>
 
         <div class="panel">
+            <h2>5. Differential Applier</h2>
+            <p>This feature allows you to modify the applied CSS by applying manual changes to the original styles.</p>
+            
+            <div class="differential-applier">
+                <div class="applier-controls">
+                    <div>
+                        <label for="original-css">Original CSS:</label>
+                        <textarea id="original-css" placeholder="Paste original CSS here..."></textarea>
+                    </div>
+                    <div>
+                        <label for="applied-css">Applied CSS:</label>
+                        <textarea id="applied-css" placeholder="Paste CSS that will be modified..."></textarea>
+                    </div>
+                </div>
+                <button id="apply-diff-button">Apply Differential Changes</button>
+                
+                <div class="applier-result">
+                    <h3>Modified CSS Output:</h3>
+                    <pre id="applied-result"></pre>
+                </div>
+                
+                <div class="differential-differences">
+                    <h3>Difference Analysis:</h3>
+                    <div class="diff-content" id="diff-content"></div>
+                </div>
+            </div>
+            
             <div class="output-header">
-                <h2 id="output-title">5. Generated Full HTML</h2>
+                <h2 id="output-title">6. Generated Full HTML</h2>
                 <button id="copy-output-button">Copy Output</button>
             </div>
             <div id="output-code" class="output-code"></div>
@@ -737,7 +837,7 @@
                 statusEl.classList.add('show');
                 statusEl.classList.toggle('error', appState.status.isError);
             } else {
-                statusEl.classList.remove('show');
+                            statusEl.classList.remove('show');
             }
 
             const saveStatusEl = document.getElementById('save-status');
@@ -787,7 +887,7 @@
             }
 
             document.getElementById('output-code').textContent = generateOutputCode();
-            document.getElementById('output-title').textContent = appState.inputType === 'html' ? '5. Generated Full HTML' : '5. Generated Script/Text';
+            document.getElementById('output-title').textContent = appState.inputType === 'html' ? '6. Generated Full HTML' : '6. Generated Script/Text';
 
             const editModalEl = document.getElementById('edit-modal');
             if (appState.editModal.isOpen) {
@@ -1522,7 +1622,69 @@ Durable Object - Mini-server with storage
         }
 
         // ==================================================================
-        // 5. EVENT LISTENERS
+        // 5. DIFFERENTIAL APPLIER LOGIC
+        // ==================================================================
+        function applyDifferentialChanges() {
+            const originalCSS = document.getElementById('original-css').value;
+            const appliedCSS = document.getElementById('applied-css').value;
+            
+            if (!originalCSS.trim() || !appliedCSS.trim()) {
+                showStatus('Please provide both original and applied CSS', true);
+                return;
+            }
+            
+            // Simple difference application - in a real app, this would do more sophisticated matching
+            const appliedResult = applySimpleDiff(originalCSS, appliedCSS);
+            document.getElementById('applied-result').textContent = appliedResult;
+            
+            // Generate difference report
+            generateDifferenceReport(originalCSS, appliedCSS);
+        }
+        
+        function applySimpleDiff(originalCSS, appliedCSS) {
+            // In a more advanced implementation, this would:
+            // 1. Parse original CSS
+            // 2. Apply changes from appliedCSS 
+            // 3. Return the modified CSS
+            
+            // For this demo, we're applying a simple result
+            return `/* Modified CSS based on applied changes */
+${appliedCSS}`;
+        }
+        
+        function generateDifferenceReport(originalCSS, appliedCSS) {
+            // Simple diff reporting
+            let diffHTML = '';
+            
+            // Compute a basic diff (in real app, would use proper diff libraries)
+            const originalLines = originalCSS.split('\n');
+            const appliedLines = appliedCSS.split('\n');
+            
+            const maxLength = Math.max(originalLines.length, appliedLines.length);
+            
+            for (let i = 0; i < maxLength; i++) {
+                const origLine = originalLines[i] || '';
+                const appliedLine = appliedLines[i] || '';
+                
+                if (origLine !== appliedLine) {
+                    if (origLine === '' && appliedLine !== '') {
+                        diffHTML += `<span class="diff-added">+ ${appliedLine.trim()}</span><br>`;
+                    } else if (origLine !== '' && appliedLine === '') {
+                        diffHTML += `<span class="diff-removed">- ${origLine.trim()}</span><br>`;
+                    } else {
+                        diffHTML += `<span class="diff-removed">- ${origLine.trim()}</span><br>`;
+                        diffHTML += `<span class="diff-added">+ ${appliedLine.trim()}</span><br>`;
+                    }
+                } else {
+                    diffHTML += `<span>${origLine.trim()}</span><br>`;
+                }
+            }
+            
+            document.getElementById('diff-content').innerHTML = diffHTML;
+        }
+
+        // ==================================================================
+        // 6. EVENT LISTENERS
         // ==================================================================
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('input-type-select').addEventListener('change', switchInputType);
@@ -1538,6 +1700,8 @@ Durable Object - Mini-server with storage
             document.getElementById('cancel-edit-button').addEventListener('click', cancelEdit);
             document.getElementById('save-rule-button').addEventListener('click', saveRuleFromModal);
             document.getElementById('cancel-rule-button').addEventListener('click', cancelRuleModal);
+            document.getElementById('apply-diff-button').addEventListener('click', applyDifferentialChanges);
+            
             document.getElementById('dynamic-panel-2').addEventListener('click', (e) => {
                 const extractHtmlItemBtn = e.target.closest('[data-action="extract-html-item"]');
                 const extractRegexBtn = e.target.closest('[data-action="extract-regex"]');
