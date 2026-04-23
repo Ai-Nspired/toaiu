@@ -1,80 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Official AI University :: Foundational Architecture</title>
-    <meta name="description" content="The Official AI University. Providing the non-negotiable foundations required to architect future-proof human expertise.">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
-    <style>
-        /* Custom Variables: SILVER AGE THEME (Minimized) */
-        :root{--b:#fff;--p:#1a1a1a;--s:#1a2a3a;--sv:#f0f0f0;--bl:#e0e0e0;--g:rgba(240,240,240,.8);--bs:#f8f8f8;--cb:#1a2a3a;--cl:#c0c0c0}
-        *{box-sizing:border-box;transition:all .3s ease}
-        body{margin:0;background-color:var(--b);color:var(--p);font-family:'Merriweather',serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px 20px;text-align:center;background-image:url('https://www.transparenttextures.com/patterns/white-marble.png'), linear-gradient(to bottom, var(--b) 0%, var(--bl) 100%)}
-        .c{max-width:800px;width:100%;padding:3rem;background-color:var(--b);box-shadow:0 15px 40px rgba(0,0,0,.15),0 0 25px var(--g);border-top:5px solid var(--s)}
-        .h{background-color:var(--s);padding:2rem .5rem;margin-bottom:2rem;box-shadow:0 5px 15px rgba(0,0,0,.2)}
-        .h h1{font-family:'Cinzel',serif;font-size:clamp(1.5rem,3vw,2.5rem);color:white;margin:.2rem 0;font-weight:700;text-transform:uppercase;letter-spacing:.15em;line-height:1.2;text-shadow:0 0 15px var(--g), 0 0 25px rgba(240,240,240,.5)}
-        .v{display:block}
-        .fl{
-            display:flex; 
-            flex-direction:column; 
-            justify-content:center; 
-            min-height: 120px; 
-            text-decoration:none;color:var(--p);padding:1.5rem 2rem;margin-bottom:1.5rem;text-align:left;font-family:'Merriweather',serif;font-size:clamp(1.1rem,2.5vw,1.3rem);line-height:1.8;background-color:var(--bs);border-left:5px solid var(--s);box-shadow:0 3px 10px rgba(0,0,0,.05)
-        }
-        .fl:hover{background-color:#f0f0f0;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,.1)}
-        .fl strong{color:var(--s);font-weight:700;display:block;font-family:'Cinzel',serif;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:1px;font-size:clamp(1.2rem,3vw,1.5rem)}
-        .btn{display:block;width:100%;max-width:400px;margin:1rem auto .5rem;padding:1.2rem;font-family:'Cinzel',serif;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:2px;border:none}
-        .p{background-color:var(--cb);color:white;box-shadow:0 4px 15px rgba(26,42,58,.4)}
-        .p:hover{background-color:#2b3c4f;transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,42,58,.6)}
-        .s{background-color:var(--cl);color:var(--s);box-shadow:0 4px 15px rgba(192,192,192,.5)}
-        .s:hover{background-color:#d8d8d8;box-shadow:0 6px 20px rgba(192,192,192,.7)}
-        footer{margin-top:4rem;font-size:.8rem;color:#888}
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-NSPIRED :: Human–AI Systems for Clarity</title>
+  <meta name="description" content="AI-NSPIRED builds human-guided AI systems that turn expertise into auditable, repeatable clarity.">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --b:#0d0d0d;--p:#f0f0f0;--s:#1a1a1a;--y:#d4c4a8;
+      --bd:#2a2a2a;--g:rgba(212,196,168,.5)
+    }
+    body{
+      margin:0;padding:40px 20px;
+      background:#0d0d0d url('https://www.transparenttextures.com/patterns/dark-matter.png');
+      color:var(--p);font-family:'Merriweather',serif;
+      display:flex;justify-content:center
+    }
+    .c{
+      max-width:820px;width:100%;
+      background:var(--s);padding:3rem;
+      border-top:5px solid var(--y);
+      box-shadow:0 15px 40px rgba(0,0,0,.5)
+    }
+    header{text-align:center;margin-bottom:2.5rem}
+    h1{
+      font-family:'Cinzel',serif;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      color:var(--y)
+    }
+    .sub{
+      margin-top:1rem;font-size:.95rem;opacity:.9;
+      max-width:650px;margin-left:auto;margin-right:auto
+    }
+    .grid a{
+      display:block;margin-bottom:1.6rem;
+      padding:1.6rem 2rem;
+      background:#1e1e1e;color:var(--p);
+      text-decoration:none;border-left:5px solid var(--y)
+    }
+    .grid strong{
+      font-family:'Cinzel',serif;
+      color:var(--y);display:block;
+      margin-bottom:.4rem;letter-spacing:.08em
+    }
+    /* New Merch Section Styling */
+    .merch-section {
+      margin-top: 3.5rem;
+      text-align: center;
+    }
+    .merch-section h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: var(--y);
+      margin-bottom: 1.5rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+    footer{
+      margin-top: 4rem;text-align:center;
+      font-size:.8rem;color:var(--y)
+    }
+  </style>
 </head>
 <body>
-    <div class="c">
-        <header class="h">
-            <h1>
-                <span class="v">THE OFFICIAL</span>
-                <span class="v">AI UNIVERSITY</span>
-            </h1> 
-        </header>
+  <div class="c">
+    <header>
+      <h1>AI-NSPIRED</h1>
+      <p class="sub">
+        20+ years inside real legal systems.<br>
+        Now building human-guided AI that turns expertise into auditable, repeatable clarity.
+      </p>
+    </header>
 
-        <main>
-            <a href="theofficialaiuniversity-engine.html?q=foundational+architecture" class="fl">
-                <strong>THE FOUNDATIONAL ARCHITECTURE</strong>
-                Foundational Architecture perpetuates human expertise.
-            </a>
-            
-            <a href="theofficialaiuniversity-engine.html?q=sovereign+decision-making" class="fl">
-                <strong>SOVEREIGN DECISION-MAKING</strong>
-                Make the origin of the Architect your own.
-            </a>
-            
-            <a href="theofficialaiuniversity-engine.html?q=unassailable+expertise" class="fl">
-                <strong>UNASSAILABLE EXPERTISE</strong>
-                Mastery that flows through a full heart and clear mind never meets defeat.
-            </a>
-        </main>
+    <section class="grid">
+      <a href="engine.html">
+        <strong>TRUTH ENGINE</strong>
+        Makes reasoning visible, testable, and editable by experts.
+      </a>
 
-        <section class="cta-actions">
-            <a href="YOUR_PAYPAL_DONATION_LINK" class="btn s">
-                Support The Foundation (Donate)
-            </a>
+      <a href="engine.html?q=expert-in-the-loop+architecture" class="fl">
+        <strong>EITL (EXPERT-IN-THE-LOOP)</strong>
+        Governance framework keeping humans accountable where AI decisions matter.
+      </a>
 
-            <a href="theofficialaiuniversity-engine.html" class="btn s">
-                Truth Engine Portal
-            </a>
-            
-            <a href="theofficialaiuniversity-enrollment.html" class="btn p">
-                Forge Your Foundation
-            </a>
-        </section>
+      <a href="https://theofficialaicounsel.com" target="_blank">
+        <strong>THE OFFICIAL AI COUNSEL</strong>
+        External link to applied legal-risk clarity for founders and operators.
+      </a>
 
-        <footer>
-            <p>© 2025 ai-nspired. | the university pillar.</p>
-        </footer>
-    </div>
+      <a href="https://theofficialaiuniversity.com" target="_blank">
+        <strong>THE OFFICIAL AI UNIVERSITY</strong>
+        External link to a practical path for human-AI collaboration.
+      </a>
+
+      <a href="speakeasy.html">
+        <strong>THE SPEAKEASY</strong>
+        Private, vetted network for people building real systems—not hype.
+      </a>
+
+    <footer>
+      © 2025 ai-nspired.com<br>
+      Educational and advisory systems. Not legal representation.
+    </footer>
+  </div>
 </body>
 </html>
